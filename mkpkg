@@ -1,0 +1,68 @@
+#!/bin/sh
+
+test -e "$target" && exit 0
+
+name=`echo $target | sed 's/-[0-9].*$//'`
+version=`echo $target | sed "s/$name-//"`
+pkgdir=$ports/$name/pkg
+
+sortver() {
+  sort -t. -k1,1n -k2,2n -k3,3n -k4,4n -k5,5n
+}
+
+listversions() {
+  for p in "$name-"*; do
+    echo $p
+  done
+}
+
+versions=`listversions | sortver`
+
+for p in $versions ; do
+  echo "maybe remove $p"
+done
+
+cat <<! 
+TODO: Check versions and exit if no build is required. Otherwise remove old
+      version.
+!
+
+msg() {
+	echo = $target: "$@"
+}
+
+die() {
+  echo '!' $target: error: "$@" >&2
+  exit 1
+}
+
+check() {
+	msg checking
+	if test -f "$ports/$name/sig" ; then
+		while read line ; do
+			sum=`echo "$line" | cut -d\  -f1`
+			file=`echo "$line" | cut -d\  -f2-`
+			realsum=`sha1sum "$ports/$name/$file" | cut -d\  -f1`
+			if test _"$sum" != _"$realsum" ; then
+				die "$file" wrong checksum
+			fi
+		done < "$ports/$name/sig"
+	else
+		msg warning: no signature
+	fi
+}
+
+pack() {
+	msg packing
+  make_package
+	mkdir -p $target
+	for p in $prereq; do
+		echo $p 
+	done > $target/deps
+}
+
+make_package () {
+  true
+}
+
+#. $mkpkg_plug

@@ -1,0 +1,38 @@
+#!/bin/sh
+
+write_pkginfo_key() {
+	for x in $2 ; do
+		echo "$1 = $x"
+	done
+}
+
+make_package() {
+  test -d "$pkgdir" || die "pkgdir does not exists"
+
+	{
+		echo pkgname = $target
+		echo pkgver = $version-${release-1}
+		echo pkgdesc = $desc
+		echo url = $url
+		echo builddate = $(date -u +%s)
+		echo packager = $packager
+		echo size = `du -cks "$pkgdir" | awk 'NR=1 {print 1024 * $1; exit}'`
+		echo arch = ${arch-`uname -m`}
+		write_pkginfo_key license "$license"
+		write_pkginfo_key depend "$prereq"
+		write_pkginfo_key optdepend "$optdeps"
+		write_pkginfo_key conflicts "$conflicts"
+		write_pkginfo_key provides "$provides"
+		write_pkginfo_key backup "$backup"
+	} > "$pkgdir/.PKGINFO"
+
+  (
+    files=".PKGINFO"
+    if test -f "$pkgdir/.INSTALL" ; then
+      files="$files .INSTALL"
+    fi
+
+    (cd "$pkgdir" && fakeroot -- bsdtar -c -f - $files *) | gzip \
+    > "$target/$name-$version-${release-1}-${arch-`uname -m`}.pkg.tar.gz"
+  )
+}
