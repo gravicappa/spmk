@@ -6,6 +6,14 @@ name=`echo $target | sed 's/-[0-9].*$//'`
 version=`echo $target | sed "s/$name-//"`
 pkgdir=$ports/$name/pkg
 
+msg() {
+	echo = $target: "$@"
+}
+
+remove_old() {
+  msg 'TODO: remove old version?' $@;
+}
+
 sortver() {
   sort -t. -k1,1n -k2,2n -k3,3n -k4,4n -k5,5n
 }
@@ -16,33 +24,18 @@ listversions() {
   done
 }
 
-versions=`listversions | sortver`
-
-for p in $versions ; do
-  echo "maybe remove $p"
-done
-
-cat <<! 
-TODO: Check versions and exit if no build is required. Otherwise remove old
-      version.
-!
-
-msg() {
-	echo = $target: "$@"
-}
-
 die() {
   echo '!' $target: error: "$@" >&2
   exit 1
 }
 
-check() {
+verifypkg() {
 	msg checking
 	if test -f "$ports/$name/sig" ; then
 		while read line ; do
-			sum=`echo "$line" | cut -d\  -f1`
-			file=`echo "$line" | cut -d\  -f2-`
-			realsum=`sha1sum "$ports/$name/$file" | cut -d\  -f1`
+			sum=`echo "$line" | cut -d' ' -f1`
+			file=`echo "$line" | cut -d' ' -f2-`
+			realsum=`sha1sum "$ports/$name/$file" | cut -d' ' -f1`
 			if test _"$sum" != _"$realsum" ; then
 				die "$file" wrong checksum
 			fi
@@ -52,17 +45,21 @@ check() {
 	fi
 }
 
-pack() {
-	msg packing
-  make_package
+installpkg() {
+	msg installing pkg
+  type make_package >/dev/null 2>&1 && make_package
 	mkdir -p $target
 	for p in $prereq; do
-		echo $p 
+		echo $p
 	done > $target/deps
 }
 
-make_package () {
-  true
-}
+for h in $mkpkg_headers; do
+  $h
+done
 
-#. $mkpkg_plug
+versions=`listversions | sortver`
+
+for p in $versions ; do
+  remove_old $p
+done
