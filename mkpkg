@@ -1,10 +1,11 @@
-#!/bin/sh
+#!/bin/false
 
 test -e "$target" && exit 0
 
 name=`echo $target | sed 's/-[0-9].*$//'`
 version=`echo $target | sed "s/$name-//"`
-pkgdir=$ports/$name/pkg
+pkgroot=$buildroot/$target
+pkgdir=$pkgroot/pkg
 
 msg() {
 	echo = $target: "$@"
@@ -19,15 +20,34 @@ sortver() {
 }
 
 listversions() {
+	echo $version
   for p in "$name-"*; do
-    echo $p
+    test -e "$p" && echo $p | sed "s/$name-//"
   done
+}
+
+process_versions() {
+	echo versions: $*
+	echo curver: $version
+	while test \( -n "$1" \) -a \( "$1" '!=' "$version" \) ; do
+		remove_old $name-$1
+		shift
+	done
+	shift
+	test -n "$1" && { msg $name-$1 is newer than $target; exit 0; }
+	true
 }
 
 die() {
   echo '!' $target: error: "$@" >&2
   exit 1
 }
+
+for h in $mkpkg_headers; do
+  . $h
+done
+
+process_versions `listversions | sortver`
 
 verifypkg() {
 	msg checking
@@ -48,18 +68,16 @@ verifypkg() {
 installpkg() {
 	msg installing pkg
   type make_package >/dev/null 2>&1 && make_package
-	mkdir -p $target
+	mkdir -p "$root/$target"
 	for p in $prereq; do
+		# TODO: update 'required' of $p
 		echo $p
-	done > $target/deps
+	done > "$root/$target/deps"
+	rm -rf "$pkgroot"
 }
 
-for h in $mkpkg_headers; do
-  $h
-done
+rm -rf "$pkgroot"
+mkdir -p "$pkgroot"
+cd "$pkgroot"
 
-versions=`listversions | sortver`
-
-for p in $versions ; do
-  remove_old $p
-done
+sleep 1
