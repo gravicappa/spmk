@@ -40,13 +40,18 @@ fn mkport {
 		echo $port_name^:V: $port_name^'-'^$ver
 		echo
 		echo $port_name^'-'^$ver: $deps
-		echo '  $mkpkg'
+		echo '  $mkpkg_header'
 		echo '  msg download'
+		echo '  #test -f $port_name.tar.gz \'
+		echo '  #|| wget http://nosuchhost.org/$port_name.tar.gz'
 		echo '  verifypkg'
+		echo '  #gunzip < $port_name.tar.gz | tar x'
+		echo '  #cd $port_name'
 		echo '  msg build'
 		echo '  #make DESTDIR=$pkgdir'
 		echo '  #make DESTDIR=$pkgdir install'
 		echo '  installpkg'
+		echo
 	} > $dir/$port_name/port.mk
 	deps=($deps $1)
 }
