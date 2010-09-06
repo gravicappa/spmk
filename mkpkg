@@ -27,8 +27,6 @@ listversions() {
 }
 
 process_versions() {
-	echo versions: $*
-	echo curver: $version
 	while test \( -n "$1" \) -a \( "$1" '!=' "$version" \) ; do
 		remove_old $name-$1
 		shift
