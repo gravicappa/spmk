@@ -1,5 +1,3 @@
-#!/bin/false
-
 test -e "$target" && exit 0
 
 name=`echo $target | sed 's/-[0-9].*$//'`
@@ -7,75 +5,46 @@ version=`echo $target | sed "s/$name-//"`
 pkgroot=$buildroot/$target
 pkgdir=$pkgroot/pkg
 
-msg() {
-	echo = $target: "$@"
-}
+. "$spkgdir/pkgfuncs"
 
 remove_old() {
   msg 'TODO: remove old version?' $@;
 }
 
-sortver() {
-  sort -t. -k1,1n -k2,2n -k3,3n -k4,4n -k5,5n
+process_prev_installed() {
+  find_all_ver | sort_ver | {
+    read -r line
+    while [ -n "$line" ] && [ "$line" != "$1" ] ; do
+      remove_old $name-$line
+      read -r line
+    done
+    read -r line
+    test -n "$line" && { msg $name-$line is newer than $target; exit 0; }
+  }
 }
 
-listversions() {
-	echo $version
-  for p in "$name-"*; do
-    test -e "$p" && echo $p | sed "s/$name-//"
-  done
+is_installed_as_dependency() {
+  echo " $MKARGS " | grep -v " $name " >/dev/null \
+	&& echo as_dependency \
+	|| echo explicitely
 }
 
-process_versions() {
-	while test \( -n "$1" \) -a \( "$1" '!=' "$version" \) ; do
-		remove_old $name-$1
-		shift
-	done
-	shift
-	test -n "$1" && { msg $name-$1 is newer than $target; exit 0; }
-	true
-}
-
-die() {
-  echo '!' $target: error: "$@" >&2
-  exit 1
-}
-
-for h in $mkpkg_headers; do
-  . $h
-done
-
-process_versions `listversions | sortver`
-
-verifypkg() {
-	msg checking
-	if test -f "$ports/$name/sig" ; then
-		while read line ; do
-			sum=`echo "$line" | cut -d' ' -f1`
-			file=`echo "$line" | cut -d' ' -f2-`
-			realsum=`sha1sum "$ports/$name/$file" | cut -d' ' -f1`
-			if test _"$sum" != _"$realsum" ; then
-				die "$file" wrong checksum
-			fi
-		done < "$ports/$name/sig"
-	else
-		msg warning: no signature
-	fi
-}
-
-installpkg() {
-	msg installing pkg
-  type make_package >/dev/null 2>&1 && make_package
-	mkdir -p "$root/$target"
-	for p in $prereq; do
-		# TODO: update 'required' of $p
-		echo $p
-	done > "$root/$target/deps"
+makepkg() {
+	filelst=`mktemp -t spkg.filelst.XXXXXXXXX`
+	list_files "$pkgdir" > "$filelst"
+	install_files "$pkgdir" "$filelst" "$root"
+	register_pkg "$pkgdir" "$filelst"
+	rm -f "$filelst"
 	rm -rf "$pkgroot"
 }
 
+reason=${REASON:-`is_installed_as_dependency`}
+
+process_prev_installed $version || true
+
 rm -rf "$pkgroot"
-mkdir -p "$pkgroot"
+mkdir -p "$pkgroot" "$pkgdir"
 cd "$pkgroot"
 
 sleep 1
+true

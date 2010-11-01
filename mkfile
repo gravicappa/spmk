@@ -1,11 +1,18 @@
-mkpkg_header = . ../mkpkg
-mkpkg_headers =
-ports = /home/yoda/dev/spkg/ports
-buildroot = /home/yoda/dev/spkg/build
-root = `{pwd}
+spkgdir = /home/ramil/dev/spkg
+core_header = . $spkgdir/mkpkg
+header = $core_header
+testdir = /home/ramil/dev/spkg/test/
+ports = $testdir/ports
+buildroot = $testdir/build
+root = $testdir/root
+dbroot = $testdir/packages
 
 default:VQ:
-	echo Usage: mk package
+	echo 'Usage: mk [all|<packages>]'
+
+update:VQ:
+	#TODO: skip packages that does not exist in $ports any more
+	mk `ls | grep '[-]' | sed 's/-[0-9].*$//' | sort | uniq`
 
 vars:VQ:
 	echo distfiles: $distfiles
@@ -14,4 +21,4 @@ vars:VQ:
 	echo args: $MKARGS
 	echo root: $root
 
-<| cat $ports/*/port.mk || echo
+<| cat $ports/*/port.mk
