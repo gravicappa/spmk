@@ -1,10 +1,14 @@
 #!/usr/bin/env rc
 
-n=10000
 words='/usr/share/dict/words'
 nlines=`{wc -l < $words}
-dir='test/ports'
 deps=(base 9base libc dev)
+
+dir=$1
+n=$2
+
+if (test -z $n)
+	n=100
 
 fn rnd {
   od -A n -d -N2 < /dev/urandom \
@@ -52,7 +56,7 @@ fn mkport {
     echo '  msg build'
     echo '  #make DESTDIR=$pkgdir'
     echo '  #make DESTDIR=$pkgdir install'
-		echo '  msg installing fake files
+		echo '  msg installing fake files'
     echo '  mkdir -p $pkgdir/usr/bin $pkgdir/usr/share/$name'
     echo '  touch $pkgdir/usr/share/$name/file'
     echo '  touch $pkgdir/usr/bin/$name'
