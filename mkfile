@@ -1,7 +1,7 @@
-spkgdir = /home/ramil/dev/spkg
+spkgdir = $HOME/dev/spkg
 core_header = . $spkgdir/mkpkg
 header = $core_header
-testdir = /home/ramil/dev/spkg/test/
+testdir = $HOME/dev/spkg/test/
 ports = $testdir/ports
 buildroot = $testdir/build
 root = $testdir/root
