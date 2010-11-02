@@ -1,4 +1,3 @@
-
 write_pkginfo_key() {
 	for x in $2 ; do
 		echo "$1 = $x"
@@ -6,7 +5,8 @@ write_pkginfo_key() {
 }
 
 make_package() {
-  test -d "$pkgdir" || die "pkgdir does not exists"
+  srcdir="$1"
+  test -d "$srcdir" || die "pkgdir does not exists"
 
 	{
 		echo pkgname = $target
@@ -15,7 +15,7 @@ make_package() {
 		echo url = $url
 		echo builddate = $(date -u +%s)
 		echo packager = $packager
-		echo size = `du -cks "$pkgdir" | awk 'NR=1 {print 1024 * $1; exit}'`
+		echo size = `du -cks "$srcdir" | awk 'NR=1 {print 1024 * $1; exit}'`
 		echo arch = ${arch-`uname -m`}
 		write_pkginfo_key license "$license"
 		write_pkginfo_key depend "$prereq"
@@ -23,15 +23,15 @@ make_package() {
 		write_pkginfo_key conflicts "$conflicts"
 		write_pkginfo_key provides "$provides"
 		write_pkginfo_key backup "$backup"
-	} > "$pkgdir/.PKGINFO"
+	} > "$srcdir/.PKGINFO"
 
   (
     files=".PKGINFO"
-    if test -f "$pkgdir/.INSTALL" ; then
+    if test -f "$srcdir/.INSTALL" ; then
       files="$files .INSTALL"
     fi
 
-    (cd "$pkgdir" && fakeroot -- bsdtar -c -f - $files *) | gzip \
+    (cd "$srcdir" && fakeroot -- bsdtar -c -f - $files *) | gzip \
     > "$target/$name-$version-${release-1}-${arch-`uname -m`}.pkg.tar.gz"
   )
 }
