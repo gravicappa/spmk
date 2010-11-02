@@ -59,6 +59,7 @@ fn mkport {
     echo '  dd if=/dev/urandom of=$pkgdir/usr/share/$name/file \'
     echo '    bs='^`{rnd 16384}^' count=1 2>/dev/null'
     echo '  touch $pkgdir/usr/bin/$name'
+    echo '  sleep 1'
     echo '  makepkg'
     echo
   } > $dir/$port_name/port.mk
