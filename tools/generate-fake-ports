@@ -8,7 +8,7 @@ dir=$1
 n=$2
 
 if (test -z $n)
-	n=100
+  n=100
 
 fn rnd {
   od -A n -d -N2 < /dev/urandom \
@@ -22,12 +22,10 @@ fn rnd_word {
 
 fn rnd_deps {
   n=`{awk -v 'n='`{rnd $#deps} 'BEGIN { print (n > 5) ? 5 : n; }'} {
-    if (test $n -eq 0)
-      echo ''
-    if not {
-      for (d in $deps) {
+    {
+    if (! test $n -eq 0)
+      for (d in $deps)
         echo $d
-      }
     } | shuf | head -n $n
   }
 }
@@ -43,7 +41,7 @@ fn mkport {
     echo
     echo $port_name^:V: $port_name^'-'^$ver
     echo
-    echo $port_name^'-'^$ver: $deps
+    echo $port_name^'-'^$ver:Q: $deps
     echo '  $header'
     echo '  msg download'
     echo '  #test -f $port_name.tar.gz \'
@@ -56,9 +54,10 @@ fn mkport {
     echo '  msg build'
     echo '  #make DESTDIR=$pkgdir'
     echo '  #make DESTDIR=$pkgdir install'
-		echo '  msg installing fake files'
+    echo '  msg installing fake files'
     echo '  mkdir -p $pkgdir/usr/bin $pkgdir/usr/share/$name'
-    echo '  touch $pkgdir/usr/share/$name/file'
+    echo '  dd if=/dev/urandom of=$pkgdir/usr/share/$name/file \'
+    echo '    bs='^`{rnd 16384}^' count=1 2>/dev/null'
     echo '  touch $pkgdir/usr/bin/$name'
     echo '  makepkg'
     echo
