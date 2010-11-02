@@ -45,6 +45,3 @@ process_prev_installed $version || true
 rm -rf "$pkgroot"
 mkdir -p "$pkgroot" "$pkgdir"
 cd "$pkgroot"
-
-sleep 1
-true
