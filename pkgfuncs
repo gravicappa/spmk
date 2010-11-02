@@ -7,7 +7,7 @@ die() {
   exit 1
 }
 
-sort_ver() { 
+sort_ver() {
   sort -t. -k1,1n -k2,2n -k3,3n -k4,4n -k5,5n
 }
 
@@ -48,9 +48,11 @@ register_pkg() {
   msg registering pkg
   mkdir -p "$dbroot/$target"
   {
-    printf 'reason: %s' $reason
-    printf 'size: '
-    du -sk "$srcdir" | cut -d' ' -f1 
+    printf 'reason: %s\n' $reason
+
+    # TODO: use more precise method of size calculation
+    printf 'size_kb: '
+    du -sk "$srcdir" | cut -d'  ' -f1
   } > "$dbroot/$target/desc"
   cat < "$filelst" > "$dbroot/$target/files"
   for p in $prereq; do
@@ -71,7 +73,7 @@ files_exist_in_dst() {
   s=ok
   while read file; do
     if test -f "$root/$file"; then
-      msg File $root/$file already exists. 
+      msg File $root/$file already exists.
       s=err
     fi
   done < "$filelst"
