@@ -52,7 +52,7 @@ register_pkg() {
 
     # TODO: use more precise method of size calculation
     printf 'size_kb: '
-    du -sk "$srcdir" | cut -d'  ' -f1
+    du -sk "$srcdir" | cut -d'	' -f1
   } > "$dbroot/$target/desc"
   cat < "$filelst" > "$dbroot/$target/files"
   for p in $prereq; do
