@@ -1,0 +1,136 @@
+msg() {
+  echo = $target: "$@"
+}
+
+die() {
+  echo '!' $target: error: "$@" >&2
+  exit 1
+}
+
+sort_ver() { 
+  sort -t. -k1,1n -k2,2n -k3,3n -k4,4n -k5,5n
+}
+
+find_all_ver() {
+  echo $version
+  for p in "$name-"*; do
+    test -e "$p" && echo $p | sed "s/$name-//"
+  done
+}
+
+download() {
+  file="$2"
+  if test -z "$file" ; then
+    file="`basename "$1"`"
+  fi
+  test -f "$file" || wget "$url" -O "$file"
+}
+
+verifypkg() {
+  msg checking
+  if test -f "$ports/$name/sig" ; then
+    while read line ; do
+      sum=`echo "$line" | cut -d' ' -f1`
+      file=`echo "$line" | cut -d' ' -f2-`
+      realsum=`sha1sum "$ports/$name/$file" | cut -d' ' -f1`
+      if test _"$sum" != _"$realsum" ; then
+        die "$file" wrong checksum
+      fi
+    done < "$ports/$name/sig"
+  else
+    msg warning: no signature
+  fi
+}
+
+register_pkg() {
+  srcdir="$1"
+  filelst="$2"
+  msg registering pkg
+  mkdir -p "$dbroot/$target"
+  {
+    printf 'reason: %s' $reason
+    printf 'size: '
+    du -sk "$srcdir" | cut -d' ' -f1 
+  } > "$dbroot/$target/desc"
+  cat < "$filelst" > "$dbroot/$target/files"
+  for p in $prereq; do
+    echo $p
+    pkg="$dbroot/$p"-*
+    for pkg in $pkg; do break; done
+    if test -d $pkg ; then
+      if ! grep $name "$pkg/required_by" >/dev/null 2>&1 ; then
+        echo "$name" >> "$pkg/required_by"
+      fi
+    fi
+  done > "$dbroot/$target/deps"
+}
+
+files_exist_in_dst() {
+  filelst="$1"
+  dstdir="$2"
+  s=ok
+  while read file; do
+    if test -f "$root/$file"; then
+      msg File $root/$file already exists. 
+      s=err
+    fi
+  done < "$filelst"
+  test $s == err
+}
+
+remove_files() {
+  dstdir="$1"
+  filelst="$2"
+  while read file; do
+    if ! echo "$file" | grep '/$' >/dev/null 2>&1; then
+      rm -f "$dstdir/$file"
+    fi
+  done < "$filelst"
+  while read file; do
+    if echo "$file" | grep '/$' >/dev/null 2>&1; then
+      rmdir "$dstdir/$file" 2>/dev/null
+    fi
+  done < "$filelst"
+}
+
+install_files() {
+  srcdir="$1"
+  filelst="$2"
+  dstdir="$3"
+  s=ok
+  if files_exist_in_dst "$filelst" "$dstdir" ; then
+    s=err
+  else
+    while read file; do
+      if test -d "$srcdir/$file"; then
+        if ! mkdir -p "$dstdir/$file"; then
+          s=err
+          break
+        fi
+      else
+        if ! cp -f "$srcdir/$file" "$dstdir/$file"; then
+          s=err
+          break
+        fi
+      fi
+    done < "$filelst"
+  fi
+  if test $s = err; then
+    remove_files "$dstdir" "$filelst"
+    false
+  else
+    true
+  fi
+}
+
+list_files() {
+  (cd "$1";
+   find . | sed '1d;s_^\./__' |
+   while read f; do
+     if test -d ./"$f"; then
+       echo "$f/"
+     else
+       echo "$f"
+     fi
+   done)
+}
