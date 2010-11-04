@@ -1,6 +1,6 @@
 #!/usr/bin/env rc
 echo 'MKSHELL=rc'
-exec cat $ports/*/port.mk | awk '
+exec awk '
 	/^[^ \t].*:/ {
 		rule = 1
 		print
@@ -8,9 +8,7 @@ exec cat $ports/*/port.mk | awk '
 	}
 	/^[ \t]/ && rule {
 		print "  . $header"
-		print
 		rule = 0
-		next
 	}
 	{print}
-'
+' $ports/*/port.mk 

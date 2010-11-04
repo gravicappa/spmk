@@ -1,5 +1,6 @@
 #!/usr/bin/env rc
-exec cat $ports/*/port.mk | awk '
+echo 'MKSHELL=rc'
+exec awk '
 	/^[^ \t].*:/ {
 		sub(/:.*:/, ":VQ:")
 		rule = 1
@@ -11,4 +12,4 @@ exec cat $ports/*/port.mk | awk '
 		rule = 0
 		next
 	}
-'
+' $ports/*/port.mk 
