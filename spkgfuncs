@@ -53,11 +53,10 @@ fn register_pkg {
   filelst=$2
   as_root mkdir -p $dbroot/$target
   {
-    printf 'reason: %s\n' $reason
+    echo 'reason: ' $reason
 
     # TODO: use more precise method of size calculation
-    printf 'size_kb: '
-    du -sk $srcdir | cut -d'	' -f1
+    echo 'size_kb: ' `{du -k $srcdir | cut -d'	' -f1}
   } | as_root cat '>' $dbroot/$target/desc
   as_root cat '<' $filelst '>' $dbroot/$target/files
   {

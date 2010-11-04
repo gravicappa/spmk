@@ -9,14 +9,11 @@ echo 'MKSHELL=rc'
 			name=`{echo $f | sed 's/-[0-9].*$//'}
 			echo $name:VQ: $f
 			echo
-			printf %s $f:VQ:
-			if (test -f $f/required_by) {
-				{
-					while (req=`{read})
-						printf ' %s' $req
-				} < $f/required_by
-			}
-			echo
+			{
+				echo $f:VQ:
+				if (test -f $f/required_by)
+					cat $f/required_by
+			} | xargs
 			echo  '  ' $1 $f
 			echo
 		}

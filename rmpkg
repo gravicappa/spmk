@@ -4,12 +4,6 @@
 pkg=$1
 dir=$dbroot/$pkg
 name=`{echo $pkg | sed 's/-[0-9].*$//'}
-edexpr='
-g/^%s$/d
-g/^%s$/d
-w
-q
-'
 
 filelst=`{mktemp -t spkg.filelst.XXXXXXX}
 
@@ -27,8 +21,14 @@ fn find_package {
 	while (dep=`{read})
 		if (test $#dep -gt 0) {
 			p=`{find_package $dep}
-			if (test $#p -gt 0 && test -f $p/required_by)
-				printf $edexpr $pkg $name | ed $p/required_by >[2]/dev/null
+			if (test $#p -gt 0 && test -f $p/required_by) {
+			  {
+					echo 'g/^'$pkg'$/d'
+					echo 'g/^'$name'$/d'
+					echo w
+					echo q
+				} | ed $p/required_by >[2]/dev/null
+			}
 		}
 } < $dir/deps
 cat < $dir/files > $filelst
