@@ -18,7 +18,3 @@ mkdir -p $testdir/packages
 mkdir -p $testdir/ports 
 
 ./tools/generate-fake-ports $testdir/ports $nports
-
-echo '# Testing environment created'
-echo ' ' cd  $testdir/packages
-echo ' ' mk -f `{pwd}^/mkfile 'some_package'
