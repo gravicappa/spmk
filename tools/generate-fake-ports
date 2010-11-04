@@ -42,7 +42,7 @@ fn mkport {
     echo $port_name^:V: $port_name^'-'^$ver
     echo
     echo $port_name^'-'^$ver:Q: $deps
-    echo '  $header'
+    #echo '  $header'
     echo '  msg download'
     echo '  #test -f $port_name.tar.gz \'
     echo '  #|| wget http://nosuchhost.org/$port_name.tar.gz'
@@ -56,8 +56,8 @@ fn mkport {
     echo '  #make DESTDIR=$pkgdir install'
     echo '  msg installing fake files'
     echo '  mkdir -p $pkgdir/usr/bin $pkgdir/usr/share/$name'
-    echo '  dd if=/dev/urandom of=$pkgdir/usr/share/$name/file \'
-    echo '    bs='^`{rnd 16384}^' count=1 2>/dev/null'
+    echo '  dd ''if=/dev/urandom'' ''of=''$pkgdir/usr/share/$name/file \'
+    echo '    ''bs='''^`{rnd 16384}^' ''count=1'' >[2]/dev/null'
     echo '  touch $pkgdir/usr/bin/$name'
     echo '  sleep 1'
     echo '  makepkg'
@@ -71,6 +71,7 @@ mkdir -p $dir
 for (d in $deps)
   mkport $d
 
+mkport msmake base
 mkport pcc `{rnd_deps}
 
 seq $n | while (i=`{read | cat})
