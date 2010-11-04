@@ -1,0 +1,34 @@
+.TH SPKG 1
+.SH NAME
+spkg \- port/package utility
+.SH SYNOPSIS
+.B spkg
+(
+.B -a
+|
+.B -r
+|
+.B -d
+|
+.B -rd 
+)
+.I packages 
+.I ...
+.SH DESCRIPTION
+.I Spkg
+is a port management utility that tracks installed packages on *nix system.
+It features dependency support.
+.SH OPERATIONS
+.TP
+.B -a
+Add packages.
+.TP
+.B -r
+Remove packages.
+.TP
+.B -d
+List package dependencies.
+.TP
+.B -rd
+List all installed packages that are required by packages supplied in
+arguments.

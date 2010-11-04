@@ -1,0 +1,16 @@
+#!/usr/bin/env rc
+echo 'MKSHELL=rc'
+exec cat $ports/*/port.mk | awk '
+	/^[^ \t].*:/ {
+		rule = 1
+		print
+		next
+	}
+	/^[ \t]/ && rule {
+		print "  . $header"
+		print
+		rule = 0
+		next
+	}
+	{print}
+'

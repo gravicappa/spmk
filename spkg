@@ -1,0 +1,26 @@
+#!/usr/bin/env rc
+
+spkgdir=$HOME/dev/spkg
+header=$spkgdir/mkpkg
+testdir=$HOME/dev/spkg/test
+ports=$testdir/ports
+buildroot=$testdir/build
+root=$testdir/root
+dbroot=$testdir/packages
+
+cmd=$1
+shift
+switch ($cmd) {
+  case -a
+		cd $dbroot
+    exec mk -f <{$spkgdir/mkports} $*
+  case -r
+    exec mk -f <{$spkgdir/mkrevdep $spkgdir/rmpkg} $*
+  case -d
+    exec mk -f <{$spkgdir/mkdep} $*
+  case -rd
+    exec mk -f <{$spkgdir/mkrevdep echo} $*
+  case *
+    echo 'Usage: spkg [-a|-r|-d|-rd] packages...'
+		exit 1
+}

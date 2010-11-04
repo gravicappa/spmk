@@ -1,47 +1,51 @@
-test -e "$target" && exit 0
+test -e $target && exit 0
 
-name=`echo $target | sed 's/-[0-9].*$//'`
-version=`echo $target | sed "s/$name-//"`
+name=`{echo $target | sed 's/-[0-9].*$//'}
+version=`{echo $target | sed s/$name-//}
 pkgroot=$buildroot/$target
 pkgdir=$pkgroot/pkg
 
-. "$spkgdir/pkgfuncs"
+. $spkgdir/spkgfuncs
 
-remove_old() {
-  msg 'TODO: remove old version?' $@;
+fn remove_old {
+  msg 'TODO: remove old version?' $*
 }
 
-process_prev_installed() {
+fn process_prev_installed {
   find_all_ver | sort_ver | {
-    read -r line
-    while [ -n "$line" ] && [ "$line" != "$1" ] ; do
+    while (line=`{read} && test $line '!=' $1) {
+			ver=$line
       remove_old $name-$line
-      read -r line
-    done
-    read -r line
-    test -n "$line" && { msg $name-$line is newer than $target; exit 0; }
+		}
+		if (line=`{read} && test -n $line) {
+			msg $name-$line is newer than $target
+			exit 0
+		}
   }
 }
 
-is_installed_as_dependency() {
-  echo " $MKARGS " | grep -v " $name " >/dev/null \
-	&& echo as_dependency \
-	|| echo explicitely
+fn install_reason {
+  if (echo ' '^$"MKARGS^' ' | grep -v ' '^$name^' ' >/dev/null)
+		echo as_dependency
+	if not
+	  echo explicitely
 }
 
-makepkg() {
-	filelst=`mktemp -t spkg.filelst.XXXXXXXXX`
-	list_files "$pkgdir" > "$filelst"
-	install_files "$pkgdir" "$filelst" "$root"
-	register_pkg "$pkgdir" "$filelst"
-	rm -f "$filelst"
-	rm -rf "$pkgroot"
+fn makepkg {
+	filelst=`{mktemp -t spkg.filelst.XXXXXXXXX}
+	list_files $pkgdir > $filelst
+	install_files $pkgdir $filelst $root
+	register_pkg $pkgdir $filelst
+	rm -f $filelst
+	rm -rf $pkgroot
 }
 
-reason=${REASON:-`is_installed_as_dependency`}
+reason=`{install_reason}
+if (test $#REASON -gt 0)
+	reason=$REASON
 
 process_prev_installed $version || true
 
-rm -rf "$pkgroot"
-mkdir -p "$pkgroot" "$pkgdir"
-cd "$pkgroot"
+rm -rf $pkgroot
+mkdir -p $pkgroot $pkgdir
+cd $pkgroot

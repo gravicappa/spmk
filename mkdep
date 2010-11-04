@@ -1,0 +1,14 @@
+#!/usr/bin/env rc
+exec cat $ports/*/port.mk | awk '
+	/^[^ \t].*:/ {
+		sub(/:.*:/, ":VQ:")
+		rule = 1
+		print
+	}
+	/^[ \t]/ && rule {
+		print "  echo $target"
+		print ""
+		rule = 0
+		next
+	}
+'

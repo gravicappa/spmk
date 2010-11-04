@@ -1,0 +1,24 @@
+#!/usr/bin/env rc
+
+echo 'MKSHELL=rc'
+
+@ {
+	cd $dbroot
+	for (f in *-[0-9]*) {
+		if (test -d $f) {
+			name=`{echo $f | sed 's/-[0-9].*$//'}
+			echo $name:VQ: $f
+			echo
+			printf %s $f:VQ:
+			if (test -f $f/required_by) {
+				{
+					while (req=`{read})
+						printf ' %s' $req
+				} < $f/required_by
+			}
+			echo
+			echo  '  ' $1 $f
+			echo
+		}
+	}
+}

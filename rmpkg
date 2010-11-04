@@ -1,0 +1,37 @@
+#!/usr/bin/env rc
+. $spkgdir/spkgfuncs
+
+pkg=$1
+dir=$dbroot/$pkg
+name=`{echo $pkg | sed 's/-[0-9].*$//'}
+edexpr='
+g/^%s$/d
+g/^%s$/d
+w
+q
+'
+
+filelst=`{mktemp -t spkg.filelst.XXXXXXX}
+
+fn find_package {
+	if (test -d $dbroot/$1) 
+		echo $1
+	if not {
+		dep=$dbroot/$1'-'*
+		if (test -d $dep(1))
+			echo $dep(1)
+	}
+}
+
+{
+	while (dep=`{read})
+		if (test $#dep -gt 0) {
+			p=`{find_package $dep}
+			if (test $#p -gt 0 && test -f $p/required_by)
+				printf $edexpr $pkg $name | ed $p/required_by >[2]/dev/null
+		}
+} < $dir/deps
+cat < $dir/files > $filelst
+rm -r $dir
+remove_files $root $filelst
+true
