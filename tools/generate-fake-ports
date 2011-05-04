@@ -50,7 +50,7 @@ fn mkport {
     echo '  #|| wget http://nosuchhost.org/$port_name.tar.gz'
     echo '  # or'
     echo '  #download http://nosuchhost.org/$port_name.tar.gz'
-    echo '  verifypkg'
+    echo '  verifysrc'
     echo '  #gunzip < $port_name.tar.gz | tar x'
     echo '  #cd $port_name'
     echo '  msg build'

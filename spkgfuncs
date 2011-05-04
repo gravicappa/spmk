@@ -18,14 +18,13 @@ fn find_all_ver {
 }
 
 fn download {
-	echo downloading $1 to $2
   file=$2
-  if (test -z $file)
-    file=`{basename $1}
-  test -f $file || wget $url -O $file
+  test -z $file && file=`{basename $1}
+  msg downloading $1 to $file
+  test -f $file || wget $1 -O $file
 }
 
-fn verifypkg {
+fn verifysrc {
   msg checking
   if (test -f $ports/$name/sig) {
     {
@@ -39,26 +38,34 @@ fn verifypkg {
     } < $ports/$name/sig
   }
   if not
-    msg warning: no signature
+    msg warning: sources not signed
 }
 
 fn as_root {
-	#echo as root: $"* >[1=2]
+  #echo as root: $"* >[1=2]
   rc -c $"*
   #sudo rc -c $"*
 }
 
+#
+# TODO: possibly functions below are redundant since this functionality
+# is already in 'spkg_add'. 
+#
+
 fn register_pkg {
   srcdir=$1
   filelst=$2
+  install=$3
   as_root mkdir -p $dbroot/$target
   {
     echo 'reason: ' $reason
 
     # TODO: use more precise method of size calculation
-    echo 'size_kb: ' `{du -k $srcdir | cut -d'	' -f1}
+    echo 'size_kb: ' `{du -k $srcdir | awk '{print $1}'}
   } | as_root cat '>' $dbroot/$target/desc
   as_root cat '<' $filelst '>' $dbroot/$target/files
+  if (test -n $install && test -f $install)
+    as_root cp '<' $install '>' $dbroot/$target/install
   {
     for (p in $prereq) {
       echo $p
@@ -68,7 +75,7 @@ fn register_pkg {
           echo $name | as_root cat '>>' $pkg(1)^/required_by
     }
   } | as_root cat '>' $dbroot/$target/deps
-	true
+  true
 }
 
 fn files_exist_in_dst {
@@ -82,9 +89,8 @@ fn files_exist_in_dst {
         s=1
       }
   } < $filelst
-	echo $s
+  echo $s
 }
-
 
 fn remove_files {
   dstdir=$1
@@ -108,16 +114,16 @@ fn install_files {
   s=ok
 
   if (~ `{files_exist_in_dst $filelst $dstdir} 1)
-		false
+    false
   if not
     if (! @{cd $srcdir && as_root tar cp .} | @{cd $dstdir && as_root tar x})
       s=err
   if (~ $s err) {
-		msg error occured. removing files
+    msg error occured. removing files
     remove_files $dstdir $filelst
     false
   }
-	true
+  true
 }
 
 fn list_files {

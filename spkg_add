@@ -81,5 +81,5 @@ if test -f "$tmp/+PKG/install" ; then
 fi
 
 mkdir -p "$pkgdb/$pkg"
-cp "$tmp/+PKG/*" "$pkgdb/$pkg"
+cp "$tmp/+PKG"/* "$pkgdb/$pkg"
 cp "$tmp/files" "$pkgdb/$pkg"

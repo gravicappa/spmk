@@ -14,10 +14,9 @@ if (~ $cmd -*)
 switch ($cmd) {
 	case ''
 		test -f build.mk || { echo 'no build.mk' >[1=2]; exit 1 }
-		pwd=`{pwd}
-		cur=$"pwd/build.mk
+		dir=`{pwd}
 		cd $dbroot
-    exec mk -f <{$spkgdir/mkports.awk $cur $ports/*/build.mk}
+    exec mk -f <{$spkgdir/mkports.awk $"dir/build.mk $ports/*/build.mk}
 
   case -b
     cd $dbroot
@@ -31,7 +30,7 @@ switch ($cmd) {
     exec mk -f <{$spkgdir/mkrevdep $spkgdir/spkg_rm} $*
 
   case -d
-    exec mk -f <{$spkgdir/mkdep.awk $ports/*/build.mk } $*
+    exec mk -f <{$spkgdir/mkdep.awk $ports/*/build.mk} $*
 
   case -rd
     exec mk -f <{$spkgdir/mkrevdep echo} $*
