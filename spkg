@@ -9,11 +9,13 @@ root=$testdir/root
 dbroot=$testdir/packages
 
 cmd=$1
-shift
+if (~ $cmd -*)
+	shift
 switch ($cmd) {
 	case ''
 		test -f build.mk || { echo 'no build.mk' >[1=2]; exit 1 }
-		cur=`{pwd}^'/build.mk'
+		pwd=`{pwd}
+		cur=$"pwd/build.mk
 		cd $dbroot
     exec mk -f <{$spkgdir/mkports.awk $cur $ports/*/build.mk}
 
@@ -26,10 +28,10 @@ switch ($cmd) {
     exit 1
 
   case -r
-    exec mk -f <{$spkgdir/mkrevdep $spkgdir/rmpkg} $*
+    exec mk -f <{$spkgdir/mkrevdep $spkgdir/spkg_rm} $*
 
   case -d
-    exec mk -f <{$spkgdir/mkdep.awk | $ports/*/build.mk } $*
+    exec mk -f <{$spkgdir/mkdep.awk $ports/*/build.mk } $*
 
   case -rd
     exec mk -f <{$spkgdir/mkrevdep echo} $*
@@ -39,6 +41,14 @@ switch ($cmd) {
 		exit 1
 
   case *
-    echo 'Usage: spkg [-b|-a|-r|-d|-rd|-u] packages...'
-    exit 1
+		for (f in $*) {
+			if (~ $f *.tar.gz && test -f $f) {
+				echo 'TODO: install binary package' $f >[1=2]
+				echo '#' $spkgdir/spkg_add $f
+			}
+			if not {
+				echo 'Usage: spkg [-b|-a|-r|-d|-rd|-u] packages...'
+				exit 1
+			}
+		}
 }
