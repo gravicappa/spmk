@@ -2,20 +2,18 @@
 
 echo 'MKSHELL=rc'
 
-@ {
-	cd $dbroot
-	for (f in *-[0-9]*) {
-		if (test -d $f) {
-			name=`{echo $f | sed 's/-[0-9].*$//'}
-			echo $name:VQ: $f
-			echo
-			{
-				echo $f:VQ:
-				if (test -f $f/required_by)
-					cat $f/required_by
-			} | xargs
-			echo  '  ' $1 $f
-			echo
-		}
+cd $dbroot
+for (f in *-[0-9]*) {
+	if (test -d $f) {
+		name=`{echo $f | sed 's/-[0-9].*$//'}
+		echo $name:VQ: $f
+		echo
+		{
+			echo $f:VQ:
+			if (test -f $f/required_by)
+				cat $f/required_by
+		} | xargs
+		echo  '  ' $1 $f
+		echo
 	}
 }

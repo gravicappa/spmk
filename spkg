@@ -1,8 +1,8 @@
 #!/usr/bin/env rc
 
 spkgdir=$HOME/dev/spkg
-header=$spkgdir/mkpkg
-testdir=$HOME/dev/spkg/test
+pkg_header=$spkgdir/mkpkg
+testdir=$HOME/dev/spkg/root
 ports=$testdir/ports
 buildroot=$testdir/build
 root=$testdir/root
@@ -11,16 +11,34 @@ dbroot=$testdir/packages
 cmd=$1
 shift
 switch ($cmd) {
-  case -a
+	case ''
+		test -f build.mk || { echo 'no build.mk' >[1=2]; exit 1 }
+		cur=`{pwd}^'/build.mk'
 		cd $dbroot
-    exec mk -f <{$spkgdir/mkports} $*
+    exec mk -f <{$spkgdir/mkports.awk $cur $ports/*/build.mk}
+
+  case -b
+    cd $dbroot
+    exec mk -f <{$spkgdir/mkports.awk $ports/*/build.mk} $*
+
+  case -a
+    echo 'TODO: binary package install' >[1=2]
+    exit 1
+
   case -r
     exec mk -f <{$spkgdir/mkrevdep $spkgdir/rmpkg} $*
+
   case -d
-    exec mk -f <{$spkgdir/mkdep} $*
+    exec mk -f <{$spkgdir/mkdep.awk | $ports/*/build.mk } $*
+
   case -rd
     exec mk -f <{$spkgdir/mkrevdep echo} $*
-  case *
-    echo 'Usage: spkg [-a|-r|-d|-rd] packages...'
+
+	case -u
+		echo 'TODO: update system' >[1=2]
 		exit 1
+
+  case *
+    echo 'Usage: spkg [-b|-a|-r|-d|-rd|-u] packages...'
+    exit 1
 }

@@ -1,0 +1,85 @@
+#!/bin/sh
+
+pkgdb=/var/lib/pacman/sync
+tmpdir=/tmp/spkg/
+root="$HOME/opt/root"
+exclude="`dirname "$0"`"/exclude
+
+err() {
+	echo error: "$1" >&2
+}
+
+die() {
+	err "$1"
+	exit 1
+}
+
+current_version() {
+	(cd "$pkgdb"; ls | sed -n "/^$1-.*$/ {p;q}")
+}
+
+remove_files() {
+  tac "$1" | while read -r file ; do
+    if test -f "$root/$file"; then
+      rm -f "$root/$file"
+    elif test -d "$root/$file"; then
+      rmdir "$root/$file" 2>/dev/null || true
+    fi
+  done
+}
+
+file="$1"
+pkg="`basename "$pkgfile" | sed 's/\.pkg\.tar\.gz$//'`"
+pkgname="`echo "$pkg" | sed 's/-[0-9].*$//'`"
+tmp="$tmpdir/$pkg"
+
+err 'TODO: check signature'
+
+rm -rf "$tmp"
+mkdir -p "$tmp" || die "Cannot create directory '$tmp'"
+trap "rm -rf '$tmp'" EXIT
+
+cur=`current_version "$pkgname"`
+
+if test -n "$cur" && test -e "$pkgdb/$cur"; then
+	echo TODO: remove old package >&2
+  if test -f "$pkgdb/$pkg/uninstall" ; then
+    sh -c ". '$pkgdb/$pkg/uninstall'"
+  fi
+  remove_files "$pkgdb/$cur/files"
+  rm -rf "$pkgdb/$cur"
+fi
+
+gunzip < "$file" | (cd "$tmp"; tar -x -f - "+PKG") \
+|| die "Broken package"
+gunzip < "$file" | tar -t -f - | grep -v '^+PKG' > $tmp/files \
+|| die "Broken package"
+
+while read -r file ; do
+  case "$file" ; in
+    */) check='-f' ;;
+    *) check='-e' ;;
+  esac
+  if test $check "$root/$file" ; then
+    err "File '$root/$file' already exists."
+    s=error
+  fi
+done < "$tmp/files"
+test "$s" = error && die 'Aborting install.'
+
+if ! gunzip < "$file" | (cd "$root" && tar -x -f - -X "$exclude") ; then
+  remove_files $tmp/files
+  die "Couldn't unpack contents of '$file'"
+fi
+
+if test -f "$tmp/+PKG/install" ; then
+  sh -c ". '$tmp/+PKG/install'" \
+  || {
+    remove_files $tmp/files
+    die 'Error in install script.'
+  }
+fi
+
+mkdir -p "$pkgdb/$pkg"
+cp "$tmp/+PKG/*" "$pkgdb/$pkg"
+cp "$tmp/files" "$pkgdb/$pkg"

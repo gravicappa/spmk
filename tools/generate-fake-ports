@@ -1,8 +1,10 @@
 #!/usr/bin/env rc
 
+ports_root=$HOME/dev/spkg
 words='/usr/share/dict/words'
 nlines=`{wc -l < $words}
 deps=(base 9base libc dev)
+port_mkfile='build.mk'
 
 dir=$1
 n=$2
@@ -42,7 +44,7 @@ fn mkport {
     echo $port_name^:V: $port_name^'-'^$ver
     echo
     echo $port_name^'-'^$ver:Q: $deps
-    #echo '  $header'
+    echo '  . $pkg_header'
     echo '  msg download'
     echo '  #test -f $port_name.tar.gz \'
     echo '  #|| wget http://nosuchhost.org/$port_name.tar.gz'
@@ -60,9 +62,10 @@ fn mkport {
     echo '    ''bs='''^`{rnd 16384}^' ''count=1'' >[2]/dev/null'
     echo '  touch $pkgdir/usr/bin/$name'
     echo '  sleep 1'
-    echo '  makepkg'
+    echo '  end_pkg'
     echo
-  } > $dir/$port_name/port.mk
+		#echo '< '^$ports_root^'/spkg.mk'
+  } > $dir/$port_name/$port_mkfile
   deps=($deps $1)
 }
 

@@ -4,6 +4,7 @@ name=`{echo $target | sed 's/-[0-9].*$//'}
 version=`{echo $target | sed s/$name-//}
 pkgroot=$buildroot/$target
 pkgdir=$pkgroot/pkg
+install=''
 
 . $spkgdir/spkgfuncs
 
@@ -31,11 +32,13 @@ fn install_reason {
 	  echo explicitely
 }
 
-fn makepkg {
+fn end_pkg {
 	filelst=`{mktemp -t spkg.filelst.XXXXXXXXX}
 	list_files $pkgdir > $filelst
 	install_files $pkgdir $filelst $root
-	register_pkg $pkgdir $filelst
+	register_pkg $pkgdir $filelst $install
+	if (test -n $install)
+		$install install
 	rm -f $filelst
 	rm -rf $pkgroot
 }

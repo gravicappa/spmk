@@ -1,6 +1,6 @@
 #!/usr/bin/env rc
 
-testdir=test
+testdir=root
 nports=40
 
 rm -rf $testdir

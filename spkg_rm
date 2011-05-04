@@ -1,0 +1,30 @@
+#!/bin/sh
+
+die() {
+	echo error: "$1" >&2
+	exit 1
+}
+
+current_version() {
+	(cd "$pkgdb"; ls | sed -n "/^$1-.*$/ {p;q}")
+}
+
+remove_files() {
+  tac "$1" | while read -r file ; do
+    if test -f "$root/$file"; then
+      rm -f "$root/$file"
+    elif test -d "$root/$file"; then
+      rmdir "$root/$file" 2>/dev/null || true
+    fi
+  done
+}
+
+pkg="$1"
+test -d "$pkg" || pkg=`current_version "$1"`
+test -d "$pkg" || die "Cannot find package '$1'."
+
+if test -f "$pkgdb/$pkg/uninstall" ; then
+  sh -c ". '$tmp/+PKG/uninstall'" || die 'Error in uninstall script.'
+fi
+
+remove_files "$pkgdb/$pkg/files"

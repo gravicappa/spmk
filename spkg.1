@@ -3,25 +3,33 @@
 spkg \- port/package utility
 .SH SYNOPSIS
 .B spkg
-(
+.RB [ -b
+|
 .B -a
 |
 .B -r
 |
 .B -d
 |
-.B -rd 
-)
-.I packages 
+.BR -rd ]
+.I [packages]
 .I ...
 .SH DESCRIPTION
 .I Spkg
 is a port management utility that tracks installed packages on *nix system.
-It features dependency support.
+It features dependency support. If no
+.I packages
+provided it tries to build package from 
+.I build.mk
+in current directory if there is one.
 .SH OPERATIONS
+.TP
+.B -b
+Builds packages.
 .TP
 .B -a
 Add packages.
+.I Not implemented yet.
 .TP
 .B -r
 Remove packages.
@@ -32,3 +40,7 @@ List package dependencies.
 .B -rd
 List all installed packages that are required by packages supplied in
 arguments.
+.TP
+.B -u
+Update all packages.
+.I Not implemented yet.
