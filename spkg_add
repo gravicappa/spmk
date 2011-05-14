@@ -3,6 +3,7 @@
 root=$HOME/dev/spkg/root/
 pkgdb=$root/var/lib/spkg
 tmpdir=$root/tmp/spkg/
+exclude='$tmpdir/exclude'
 noverify=yes
 
 err() {
@@ -45,12 +46,10 @@ if test -z "$noverify" ; then
   verify "$pkgfile" "$pkgfile.sig" || die "Package '$pkgfile' is corrupted."
 fi
 
-exclude=$(mktemp)
-trap "rm -rf '$exclude'" EXIT
-echo '+PKG' > "$exclude"
 rm -rf "$tmp"
 mkdir -p "$tmp" || die "Cannot create temp directory '$tmp'"
 trap "rm -rf '$tmp'" EXIT
+echo '+PKG' > "$exclude"
 
 cur=$(current_version "$pkgname")
 
@@ -92,5 +91,4 @@ if test -f "$tmp/+PKG/install" ; then
 fi
 
 mkdir -p "$pkgdb/$pkg"
-cp "$tmp/+PKG"/* "$pkgdb/$pkg"
-cp "$tmp/files" "$pkgdb/$pkg"
+cp "$tmp/+PKG"/* "$tmp/files" "$pkgdb/$pkg"
