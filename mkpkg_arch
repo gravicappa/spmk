@@ -1,34 +1,36 @@
+#!/usr/bin/env rc
+
 fn write_pkginfo_key {
-	for (x in $2)
-		echo $1 = $x
+	for (x in `{eval echo $2})
+		echo $1 '=' $x
 }
 
-fn make_package {
-  srcdir=$1
-  test -d $srcdir || die 'pkgdir does not exists'
-	test -z $arch && arch=`{uname -m}
-	test -z $release && release=1
-	{
-		echo pkgname = $target
-		echo pkgver = $version-$release
-		echo pkgdesc = $desc
-		echo url = $url
-		echo builddate = $(date -u +%s)
-		echo packager = $packager
-		echo size = `{du -cks $srcdir | awk 'NR==1 {print 1024 * $1; exit}'}
-		echo arch = $arch
-		write_pkginfo_key license $license
-		write_pkginfo_key depend $prereq
-		write_pkginfo_key optdepend $optdeps
-		write_pkginfo_key conflicts $conflicts
-		write_pkginfo_key provides $provides
-		write_pkginfo_key backup $backup
-	} > $srcdir/.PKGINFO
+pkgdir=$1
+pkgname=$2
+pkgdep=$3
+pkginst=$4
+test -d $pkgdir || die 'pkgdir does not exists'
+test -z $arch && arch=`{uname -m}
+{
+	echo pkgname '=' `{echo $pkgname | sed 's/-[0-9].*$//'}
+	echo pkgver '=' `{echo $pkgname | sed 's/^.*-\([0-9].*$\)/\1/'}
+	echo pkgdesc '=' $"desc
+	echo url '=' $url
+	echo builddate '=' `{date -u +%s}
+	echo packager '=' $"packager
+	echo size '=' `{du -s $pkgdir | awk '{print $1}'}
+	echo arch '=' $arch
+	write_pkginfo_key license $license
+	write_pkginfo_key depend $pkgdep
+	write_pkginfo_key optdepend $optdeps
+	write_pkginfo_key conflicts $conflicts
+	write_pkginfo_key provides $provides
+	write_pkginfo_key backup $backup
+} > $pkgdir/.PKGINFO
 
-	files=.PKGINFO
-	if (test -f $srcdir/.INSTALL)
-		files=($files .INSTALL)
-	@ {
-    cd $srcdir && fakeroot -- bsdtar -c -f - $files *
-	} | gzip > $target/$name-$version-$release-$arch.pkg.tar.gz
-}
+files=.PKGINFO
+if (test -f $pkgdir/.INSTALL)
+	files=($files .INSTALL)
+@ {
+	cd $pkgdir && fakeroot -- bsdtar -c -f - $files *
+} | gzip > $pkgname-$arch.pkg.tar.gz

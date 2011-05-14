@@ -1,9 +1,9 @@
 #!/bin/sh
 
-pkgdb=/var/lib/pacman/sync
-tmpdir=/tmp/spkg/
-root="$HOME/opt/root"
-exclude="`dirname "$0"`"/exclude
+root=$HOME/dev/spkg/root/
+pkgdb=$root/var/lib/spkg
+tmpdir=$root/tmp/spkg/
+noverify=yes
 
 err() {
 	echo error: "$1" >&2
@@ -14,35 +14,47 @@ die() {
 	exit 1
 }
 
+verify() {
+  openssl dgst -sha1 -verify "$pubkey" -signature "$2" < "$1" > /dev/null
+}
+
 current_version() {
-	(cd "$pkgdb"; ls | sed -n "/^$1-.*$/ {p;q}")
+  for f in "$pkgdb/$1"-[0-9]*; do
+    basename "$f"
+    break
+  done
 }
 
 remove_files() {
-  tac "$1" | while read -r file ; do
-    if test -f "$root/$file"; then
-      rm -f "$root/$file"
-    elif test -d "$root/$file"; then
-      rmdir "$root/$file" 2>/dev/null || true
+  tac "$1" | while read -r f ; do
+    if test -f "$root/$f"; then
+      rm -f "$root/$f"
+    elif test -d "$root/$f"; then
+      rmdir "$root/$f" 2>/dev/null || true
     fi
   done
 }
 
-file="$1"
-pkg="`basename "$pkgfile" | sed 's/\.pkg\.tar\.gz$//'`"
-pkgname="`echo "$pkg" | sed 's/-[0-9].*$//'`"
+pkgfile="$1"
+pkg=$(basename "$pkgfile" | sed 's/\.pkg\.tar\.gz$//')
+pkgname=$(echo "$pkg" | sed 's/-[0-9].*$//')
 tmp="$tmpdir/$pkg"
 
-err 'TODO: check signature'
+if test -z "$noverify" ; then
+  test -f "spkgfile.sig" || die "Package '$pkgfile' not signed."
+  verify "$pkgfile" "$pkgfile.sig" || die "Package '$pkgfile' is corrupted."
+fi
 
+exclude=$(mktemp)
+trap "rm -rf '$exclude'" EXIT
+echo '+PKG' > "$exclude"
 rm -rf "$tmp"
-mkdir -p "$tmp" || die "Cannot create directory '$tmp'"
+mkdir -p "$tmp" || die "Cannot create temp directory '$tmp'"
 trap "rm -rf '$tmp'" EXIT
 
-cur=`current_version "$pkgname"`
+cur=$(current_version "$pkgname")
 
 if test -n "$cur" && test -e "$pkgdb/$cur"; then
-	echo TODO: remove old package >&2
   if test -f "$pkgdb/$pkg/uninstall" ; then
     sh -c ". '$pkgdb/$pkg/uninstall'"
   fi
@@ -50,32 +62,31 @@ if test -n "$cur" && test -e "$pkgdb/$cur"; then
   rm -rf "$pkgdb/$cur"
 fi
 
-gunzip < "$file" | (cd "$tmp"; tar -x -f - "+PKG") \
-|| die "Broken package"
-gunzip < "$file" | tar -t -f - | grep -v '^+PKG' > $tmp/files \
-|| die "Broken package"
+gunzip < "$pkgfile" | (cd "$tmp"; tar -x -f - "+PKG") || die "Broken package."
+gunzip < "$pkgfile" | tar -t -f - | grep -v '^+PKG' > $tmp/files \
+|| die "Broken package."
 
-while read -r file ; do
-  case "$file" ; in
+while read -r f ; do
+  case "$f" in
     */) check='-f' ;;
     *) check='-e' ;;
   esac
-  if test $check "$root/$file" ; then
-    err "File '$root/$file' already exists."
+  if test $check "$root/$f"; then
+    err "File '$root/$f' already exists."
     s=error
   fi
 done < "$tmp/files"
 test "$s" = error && die 'Aborting install.'
 
-if ! gunzip < "$file" | (cd "$root" && tar -x -f - -X "$exclude") ; then
-  remove_files $tmp/files
-  die "Couldn't unpack contents of '$file'"
+if ! gunzip < "$pkgfile" | (cd "$root" && tar -x -f - -X "$exclude") ; then
+  remove_files "$tmp/files"
+  die "Couldn't unpack contents of '$pkgfile'"
 fi
 
 if test -f "$tmp/+PKG/install" ; then
   sh -c ". '$tmp/+PKG/install'" \
   || {
-    remove_files $tmp/files
+    remove_files "$tmp/files"
     die 'Error in install script.'
   }
 fi

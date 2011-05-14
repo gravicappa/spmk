@@ -5,16 +5,13 @@ nports=40
 
 rm -rf $testdir
 
-# imaginary root
-mkdir -p $testdir/root 
-
 # where building occurs
-mkdir -p $testdir/build 
+mkdir -p $testdir/tmp/build 
 
 # where database of packages is stored  
-mkdir -p $testdir/packages 
+mkdir -p $testdir/var/lib/spkg
 
 # where fake port tree is generated
-mkdir -p $testdir/ports 
+mkdir -p $testdir/usr/ports
 
-./tools/generate-fake-ports $testdir/ports $nports
+./tools/generate-fake-ports $testdir/usr/ports $nports

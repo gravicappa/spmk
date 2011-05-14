@@ -32,6 +32,8 @@ fn find_package {
 		}
 } < $dir/deps
 cat < $dir/files > $filelst
+if (test -x $dir/install)
+	$dir/install remove
 rm -r $dir
 remove_files $root $filelst
 true

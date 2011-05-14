@@ -33,7 +33,7 @@ fn rnd_deps {
 }
 
 fn rnd_ver {
-  echo `{rnd 3}^.^`{rnd 10}^.^`{rnd 30}
+  echo `{rnd 3}^.^`{rnd 10}^.^`{rnd 30}^-^`{rnd 5}
 }
 
 fn mkport {
@@ -50,7 +50,7 @@ fn mkport {
     echo '  #|| wget http://nosuchhost.org/$port_name.tar.gz'
     echo '  # or'
     echo '  #download http://nosuchhost.org/$port_name.tar.gz'
-    echo '  verifysrc'
+    echo '  #verifysrc'
     echo '  #gunzip < $port_name.tar.gz | tar x'
     echo '  #cd $port_name'
     echo '  msg build'

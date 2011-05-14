@@ -1,12 +1,12 @@
 #!/usr/bin/env rc
 
 spkgdir=$HOME/dev/spkg
-pkg_header=$spkgdir/mkpkg
+pkg_header=$spkgdir/spkg.subr
 testdir=$HOME/dev/spkg/root
-ports=$testdir/ports
-buildroot=$testdir/build
-root=$testdir/root
-dbroot=$testdir/packages
+ports=$testdir/usr/ports
+buildroot=$testdir/tmp/build
+root=$testdir
+dbroot=$testdir/var/lib/spkg
 
 cmd=$1
 if (~ $cmd -*)
