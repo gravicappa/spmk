@@ -1,10 +1,9 @@
 #!/bin/sh
 
-root=$HOME/dev/spkg/root/
-pkgdb=$root/var/lib/spkg
-tmpdir=$root/tmp/spkg/
+. $HOME/dev/spkg/spkg.conf
+
 exclude='$tmpdir/exclude'
-noverify=yes
+noverify='yes'
 
 err() {
 	echo error: "$1" >&2

@@ -1,12 +1,6 @@
 #!/usr/bin/env rc
 
-spkgdir=$HOME/dev/spkg
-pkg_header=$spkgdir/spkg.subr
-testdir=$HOME/dev/spkg/root
-ports=$testdir/usr/ports
-buildroot=$testdir/tmp/build
-root=$testdir
-dbroot=$testdir/var/lib/spkg
+. $0.conf
 
 cmd=$1
 if (~ $cmd -*)
@@ -15,11 +9,11 @@ switch ($cmd) {
 	case ''
 		test -f build.mk || { echo 'no build.mk' >[1=2]; exit 1 }
 		dir=`{pwd}
-		cd $dbroot
+		cd $pkgdb
     exec mk -f <{$spkgdir/mkports.awk $"dir/build.mk $ports/*/build.mk}
 
   case -b
-    cd $dbroot
+    cd $pkgdb
     exec mk -f <{$spkgdir/mkports.awk $ports/*/build.mk} $*
 
   case -a

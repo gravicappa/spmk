@@ -9,7 +9,7 @@ pkgdir=$1
 pkgname=$2
 pkgdep=$3
 pkginst=$4
-test -d $pkgdir || die 'pkgdir does not exists'
+test -d $pkgdir || {echo 'pkgdir does not exists'>[1=2]; exit 1}
 test -z $arch && arch=`{uname -m}
 {
 	echo pkgname '=' `{echo $pkgname | sed 's/-[0-9].*$//'}
@@ -29,8 +29,10 @@ test -z $arch && arch=`{uname -m}
 } > $pkgdir/.PKGINFO
 
 files=.PKGINFO
-if (test -f $pkgdir/.INSTALL)
+if (test -n $"pkginst && test -f $pkginst) {
+	cp $pkginst $pkgdir/.INSTALL
 	files=($files .INSTALL)
-@ {
+}
+@{
 	cd $pkgdir && fakeroot -- bsdtar -c -f - $files *
 } | gzip > $pkgname-$arch.pkg.tar.gz

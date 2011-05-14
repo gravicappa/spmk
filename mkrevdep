@@ -2,7 +2,7 @@
 
 echo 'MKSHELL=rc'
 
-cd $dbroot
+cd $pkgdb
 for (f in *-[0-9]*) {
 	if (test -d $f) {
 		name=`{echo $f | sed 's/-[0-9].*$//'}

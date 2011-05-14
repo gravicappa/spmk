@@ -56,25 +56,25 @@ fn register_pkg {
   srcdir=$1
   filelst=$2
   install=$3
-  as_root mkdir -p $dbroot/$target
+  as_root mkdir -p $pkgdb/$target
   {
     echo 'reason: ' $reason
 
     # TODO: use more precise method of size calculation
     echo 'size_kb: ' `{du -k $srcdir | awk '{print $1}'}
-  } | as_root cat '>' $dbroot/$target/desc
-  as_root cat '<' $filelst '>' $dbroot/$target/files
+  } | as_root cat '>' $pkgdb/$target/desc
+  as_root cat '<' $filelst '>' $pkgdb/$target/files
   if (test -n $install && test -f $install)
-    as_root cp '<' $install '>' $dbroot/$target/install
+    as_root cp '<' $install '>' $pkgdb/$target/install
   {
     for (p in $prereq) {
       echo $p
-      pkg=$dbroot/$p-*
+      pkg=$pkgdb/$p-*
       if (test -d $pkg(1))
         if (! grep $name $pkg(1)/required_by >/dev/null >[2=1])
           echo $name | as_root cat '>>' $pkg(1)^/required_by
     }
-  } | as_root cat '>' $dbroot/$target/deps
+  } | as_root cat '>' $pkgdb/$target/deps
   true
 }
 

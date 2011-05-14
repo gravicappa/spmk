@@ -2,16 +2,16 @@
 . $spkgdir/spkgfuncs
 
 pkg=$1
-dir=$dbroot/$pkg
+dir=$pkgdb/$pkg
 name=`{echo $pkg | sed 's/-[0-9].*$//'}
 
 filelst=`{mktemp -t spkg.filelst.XXXXXXX}
 
 fn find_package {
-	if (test -d $dbroot/$1) 
+	if (test -d $pkgdb/$1) 
 		echo $1
 	if not {
-		dep=$dbroot/$1'-'*
+		dep=$pkgdb/$1'-'*
 		if (test -d $dep(1))
 			echo $dep(1)
 	}
