@@ -1,6 +1,7 @@
 #!/bin/sh
 
-. $HOME/dev/spkg/spkg.conf
+root="$HOME/dev/spkg/root"
+pkgdb="$root/var/lib/spkg
 
 die() {
 	echo error: "$1" >&2

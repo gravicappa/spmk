@@ -7,7 +7,49 @@ pkgdir=$pkgroot/pkg
 pkgdest=$ports
 install=''
 
-. $spkgdir/spkgfuncs
+fn msg {
+  echo '=' $target: $* >[1=2]
+}
+
+fn die {
+  echo '!' $target: error: $* >[1=2]
+  exit 1
+}
+
+fn sort_ver {
+  sort -t. -k1,1n -k2,2n -k3,3n -k4,4n -k5,5n
+}
+
+fn find_all_ver {
+  echo $version
+  for (p in $name-*)
+    test -e $p && echo $p | sed s/$name-//
+}
+
+fn download {
+  file=$2
+  test -z $file && file=`{basename $1}
+  msg downloading $1 to $file
+  test -f $file || wget $1 -O $file
+}
+
+fn verifysrc {
+  msg checking
+  if (test -f $ports/$name/sig) {
+    {
+      while (line=`{read}) {
+        sum=`{echo $line | cut -d' ' -f1}
+        file=`{echo $line | cut -d' ' -f2-}
+        realsum=`{sha1sum $ports/$name/$file | cut -d' ' -f1}
+        if (! ~ $sum $realsum)
+          die $file wrong checksum
+      }
+    } < $ports/$name/sig
+  }
+  if not
+    msg warning: sources not signed
+}
+
 
 fn remove_old {
   msg 'TODO: remove old version?' $*
@@ -35,8 +77,8 @@ fn install_reason {
 
 fn end_pkg {
 	cd $pkgroot
-	$spkgdir/mkpkg $pkgdir $target $prereq $install
-	$spkgdir/spkg_add $target.pkg.tar.gz
+	$cmddir/mkpkg $pkgdir $target $prereq $install
+	spkg_add $target.pkg.tar.gz
 	mv $target.pkg.tar.gz $pkgdest
 	rm -rf $pkgroot
 }

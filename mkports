@@ -16,4 +16,4 @@ $1 == end_pkg && started {
 	started = 0
 }
 {print}
-END {print "< $spkgdir/spkg.mk"}
+END {print "< $spkg_mk"}

@@ -1,0 +1,21 @@
+#!/usr/bin/env rc
+
+pkgdir=$1
+pkgname=$2
+pkgdep=$3
+pkginst=$4
+
+pkgfile=$pkgname.pkg.tar.gz
+
+rm -rf $pkgdir/+PKG
+mkdir -p $pkgdir/+PKG
+{
+	echo name: $pkgname
+	for (dep in $pkgdep) 
+		echo depend: $dep
+	echo size: `{du -s $pkgdir | awk '{print $1}'}
+} > $pkgdir/+PKG/info
+
+test -n $"pkginst && test -f $"pkginst && cp $pkginst $pkgdir/+PKG/install
+
+@{cd $pkgdir && fakeroot -- tar -c *} | gzip > $pkgfile

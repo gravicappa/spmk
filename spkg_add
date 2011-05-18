@@ -1,8 +1,9 @@
 #!/bin/sh
 
-. $HOME/dev/spkg/spkg.conf
-
-exclude='$tmpdir/exclude'
+root="$HOME/dev/spkg/root"
+pkgdb="$root/var/lib/spkg
+tmpdir="$root/tmp/spkg"
+pubkey="$root/key.pub"
 noverify='yes'
 
 err() {
@@ -48,7 +49,9 @@ fi
 rm -rf "$tmp"
 mkdir -p "$tmp" || die "Cannot create temp directory '$tmp'"
 trap "rm -rf '$tmp'" EXIT
+exclude="$tmpdir/exclude"
 echo '+PKG' > "$exclude"
+trap "rm -rf '$exclude'" EXIT
 
 cur=$(current_version "$pkgname")
 
