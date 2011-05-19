@@ -26,11 +26,12 @@ remove_files() {
 }
 
 pkg="$1"
-test -d "$pkg" || pkg=$(current_version "$1")
-test -d "$pkg" || die "Cannot find package '$1'."
+test -d "$pkdbg/$pkg" || pkg=$(current_version "$1")
+test -d "$pkdbg/$pkg" || die "Cannot find package '$1'."
 
 if test -f "$pkgdb/$pkg/uninstall" ; then
   sh -c ". '$tmp/+PKG/uninstall'" || die 'Error in uninstall script.'
 fi
 
 remove_files "$pkgdb/$pkg/files"
+rm -rf "$pkgdb/$pkg"
