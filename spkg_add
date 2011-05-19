@@ -1,10 +1,20 @@
 #!/bin/sh
 
 root="$HOME/dev/spkg/root"
-pkgdb="$root/var/lib/spkg
+pkgdb="$root/var/lib/spkg"
 tmpdir="$root/tmp/spkg"
 pubkey="$root/key.pub"
 noverify='yes'
+
+while test $# -gt 0; do
+  case "$1" in
+    -nv) noverify='yes';;
+    -f) force='yes';;
+    -*) echo 'usage: spkg_add [-nv] [-f] pkg...' >&2; exit 1;;
+    *) break;;
+  esac
+  shift
+done
 
 err() {
 	echo error: "$1" >&2
@@ -67,17 +77,19 @@ gunzip < "$pkgfile" | (cd "$tmp"; tar -x -f - "+PKG") || die "Broken package."
 gunzip < "$pkgfile" | tar -t -f - | grep -v '^+PKG' > $tmp/files \
 || die "Broken package."
 
-while read -r f ; do
-  case "$f" in
-    */) check='-f' ;;
-    *) check='-e' ;;
-  esac
-  if test $check "$root/$f"; then
-    err "File '$root/$f' already exists."
-    s=error
-  fi
-done < "$tmp/files"
-test "$s" = error && die 'Aborting install.'
+if test -z "$force"; then
+  while read -r f ; do
+    case "$f" in
+      */) check='-f' ;;
+      *) check='-e' ;;
+    esac
+    if test $check "$root/$f"; then
+      err "File '$root/$f' already exists."
+      s=error
+    fi
+  done < "$tmp/files"
+  test "$s" = error && die 'Aborting install.'
+fi
 
 if ! gunzip < "$pkgfile" | (cd "$root" && tar -x -f - -X "$exclude") ; then
   remove_files "$tmp/files"
