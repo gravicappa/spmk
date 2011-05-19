@@ -17,17 +17,13 @@ cmdfiles = mkpkg mkports mkrevdep mkdep
 install:V:
 	mkdir -p "$destdir/$bindir" "$destdir/$etcdir" "$destdir/$cmddir"
 	mkdir -p "$destdir/$mandir"
-	awk '/^cmddir=/ {printf("cmddir=%s\n", ENVIRON["cmddir"]); next;}
-			 /^spkg_header=/ {
-			   printf("spkg_header=%s\n", ENVIRON["spkg_header"]);
-				 next;
+	awk '/^(cmddir|spkg_mk|pkgdb|root|spkg_header)=/ {
+			   sub(/=.*$/, "");
+				 printf("%s=%s\n", $1, ENVIRON[$1]);
+				 next
 			 }
-		   /^spkg_mk=/ {printf("spkg_mk=%s\n", ENVIRON["spkg_mk"]); next;}
-		   /^pkgdb=/ {printf("pkgdb=%s\n", ENVIRON["pkgdb"]); next;}
-		   /^root=/ {printf("root=%s\n", ENVIRON["root"]); next;}
 			 {print;}' < spkg > $destdir/$bindir/spkg
 	chmod 755 "$destdir/$bindir/spkg"
-  
 	for f in spkg_add spkg_rm ; do
 		awk \
 		  '/^root=/ {printf("root=\"%s\"\n", ENVIRON["root"]); next;}
@@ -37,12 +33,10 @@ install:V:
 			 {print}' < "$f" > "$destdir/$bindir/$f"
 			chmod 755 "$destdir/$bindir/$f"
 	done
-  
 	for f in $cmdfiles ; do
 		cp "$f" "$destdir/$cmddir"
 		chmod 755 "$f"
 	done
-  
 	cp spkg.mk "$destdir/$etcdir"
 	cp spkg_header.rc "$destdir/$cmddir"
 	cp spkg.1 "$destdir/$mandir"
