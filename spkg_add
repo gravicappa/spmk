@@ -8,20 +8,15 @@ noverify='yes'
 
 while test $# -gt 0; do
   case "$1" in
-    -nv) noverify='yes';;
-    -f) force='yes';;
-    -*) echo 'usage: spkg_add [-nv] [-f] pkg...' >&2; exit 1;;
+    -n) noverify='yes'; shift;;
+    -f) force='yes'; shift;;
+    -*) echo 'usage: spkg_add [-n] [-f] pkg...' >&2; exit 1;;
     *) break;;
   esac
-  shift
 done
 
-err() {
-	echo error: "$1" >&2
-}
-
 die() {
-	err "$1"
+	echo error: "$1" >&2
 	exit 1
 }
 
@@ -84,7 +79,7 @@ if test -z "$force"; then
       *) check='-e' ;;
     esac
     if test $check "$root/$f"; then
-      err "File '$root/$f' already exists."
+      echo "error: File '$root/$f' already exists." >&2
       s=error
     fi
   done < "$tmp/files"
