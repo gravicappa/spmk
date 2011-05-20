@@ -7,7 +7,8 @@ mandir = $prefix/share/man/man1
 root = /
 pkgdb = `{cleanname $root/var/lib/spkg}
 spkg_mk = $etcdir/spkg.mk
-pubkey = $etcdir/key.pub
+pubkey = $etcdir/pub.key
+privkey = $etcdir/priv.key
 tmpdir = `{cleanname $root/tmp/spkg}
 spkg_header = $cmddir/spkg_header.rc
 
@@ -17,7 +18,7 @@ cmdfiles = mkpkg mkports mkrevdep mkdep
 install:V:
 	mkdir -p "$destdir/$bindir" "$destdir/$etcdir" "$destdir/$cmddir"
 	mkdir -p "$destdir/$mandir"
-	awk '/^(cmddir|spkg_mk|pkgdb|root|spkg_header)=/ {
+	awk '/^(cmddir|spkg_mk|pkgdb|root|spkg_header|privkey)=/ {
 			   sub(/=.*$/, "");
 				 printf("%s=%s\n", $1, ENVIRON[$1]);
 				 next
