@@ -8,6 +8,7 @@ root=$HOME/dev/spkg/root
 pkgdb=$root/var/lib/spkg
 ports=$root/usr/ports
 buildroot=$root/tmp/build
+test -n $"arch || arch=`{uname -m}
 
 cmd=$1
 if (~ $cmd -*)

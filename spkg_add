@@ -42,7 +42,7 @@ remove_files() {
 }
 
 pkgfile="$1"
-pkg=$(basename "$pkgfile" | sed 's/\.pkg\.tar\.gz$//')
+pkg=$(basename "$pkgfile" | sed 's/-[^-]*$//')
 pkgname=$(echo "$pkg" | sed 's/-[0-9].*$//')
 tmp="$tmpdir/$pkg"
 

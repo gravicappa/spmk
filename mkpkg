@@ -1,16 +1,14 @@
 #!/usr/bin/env rc
 
 pkgdir=$1
-pkgname=$2
+pkgfile=$2
 pkgdep=$3
 pkginst=$4
-
-pkgfile=$pkgname.pkg.tar.gz
 
 rm -rf $pkgdir/+PKG
 mkdir -p $pkgdir/+PKG
 {
-	echo name: $pkgname
+	echo name: `{basename $pkgfile | sed 's/-[0-9].*$//'}
 	for (dep in $pkgdep) 
 		echo depend: $dep
 	echo size: `{du -s $pkgdir | awk '{print $1}'}
