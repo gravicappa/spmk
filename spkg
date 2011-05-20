@@ -3,6 +3,7 @@
 cmddir=$HOME/dev/spkg
 spkg_header=$HOME/dev/spkg/spkg_header.rc
 spkg_mk=$HOME/dev/spkg/spkg.mk
+spkg_privkey=$HOME/dev/spkg/priv.key
 root=$HOME/dev/spkg/root
 pkgdb=$root/var/lib/spkg
 ports=$root/usr/ports

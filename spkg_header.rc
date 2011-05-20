@@ -75,11 +75,19 @@ fn install_reason {
 	  echo explicitely
 }
 
+fn sign_pkg {
+	openssl dgst -sha1 -sign $spkg_privkey
+}
+
 fn end_pkg {
 	cd $pkgroot
 	$cmddir/mkpkg $pkgdir $target $prereq $install
 	spkg_add $target.pkg.tar.gz
 	mv $target.pkg.tar.gz $pkgdest
+	if (test -f $spkg_privkey)
+		sign_pkg < $pkgdest/$target.pkg.tar.gz > $pkgdest/$target.pkg.tar.gz.sig
+	if not
+		msg 'Warning: cannot sign package ' $pkgdest/$target.pkg.tar.gz
 	rm -rf $pkgroot
 }
 
