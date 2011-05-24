@@ -58,6 +58,10 @@ exclude="$tmpdir/exclude"
 echo '+PKG' > "$exclude"
 trap "rm -rf '$exclude'" EXIT
 
+gunzip < "$pkgfile" | (cd "$tmp"; tar -x -f - "+PKG") || die "Broken package."
+gunzip < "$pkgfile" | tar -t -f - | grep -v '^+PKG' > $tmp/files \
+|| die "Broken package."
+
 cur=$(current_version "$pkgname")
 
 if test -n "$cur" && test -e "$pkgdb/$cur"; then
@@ -67,10 +71,6 @@ if test -n "$cur" && test -e "$pkgdb/$cur"; then
   remove_files "$pkgdb/$cur/files"
   rm -rf "$pkgdb/$cur"
 fi
-
-gunzip < "$pkgfile" | (cd "$tmp"; tar -x -f - "+PKG") || die "Broken package."
-gunzip < "$pkgfile" | tar -t -f - | grep -v '^+PKG' > $tmp/files \
-|| die "Broken package."
 
 if test -z "$force"; then
   while read -r f ; do
