@@ -1,8 +1,8 @@
 #!/bin/sh
 
-root="$HOME/dev/spkg/root"
-pkgdb="$root/var/lib/spkg"
-tmpdir="$root/tmp/spkg"
+root="$HOME/dev/spmk/root"
+pkgdb="$root/var/lib/spmk"
+tmpdir="$root/tmp/spmk"
 pubkey="$root/key.pub"
 noverify='yes'
 
@@ -10,7 +10,7 @@ while test $# -gt 0; do
   case "$1" in
     -n) noverify='yes'; shift;;
     -f) force='yes'; shift;;
-    -*) echo 'usage: spkg_add [-n] [-f] pkg...' >&2; exit 1;;
+    -*) echo 'usage: spmk_add [-n] [-f] pkg...' >&2; exit 1;;
     *) break;;
   esac
 done
@@ -47,7 +47,7 @@ pkgname=$(echo "$pkg" | sed 's/-[0-9].*$//')
 tmp="$tmpdir/$pkg"
 
 if test -z "$noverify" ; then
-  test -f "spkgfile.sig" || die "Package '$pkgfile' not signed."
+  test -f "spmkfile.sig" || die "Package '$pkgfile' not signed."
   verify "$pkgfile" "$pkgfile.sig" || die "Package '$pkgfile' is corrupted."
 fi
 

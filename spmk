@@ -1,11 +1,11 @@
 #!/usr/bin/env rc
 
-cmddir=$HOME/dev/spkg
-spkg_header=$HOME/dev/spkg/spkg_header.rc
-spkg_mk=$HOME/dev/spkg/spkg.mk
-spkg_privkey=$HOME/dev/spkg/priv.key
-root=$HOME/dev/spkg/root
-pkgdb=$root/var/lib/spkg
+cmddir=$HOME/dev/spmk
+spmk_header=$HOME/dev/spmk/spmk_header.rc
+spmk_mk=$HOME/dev/spmk/spmk.mk
+spmk_privkey=$HOME/dev/spmk/priv.key
+root=$HOME/dev/spmk/root
+pkgdb=$root/var/lib/spmk
 ports=$root/usr/ports
 buildroot=$root/tmp/build
 test -n $"arch || arch=`{uname -m}
@@ -29,7 +29,7 @@ switch ($cmd) {
     exit 1
 
   case -r
-    exec mk -f <{$cmddir/mkrevdep spkg_rm} $*
+    exec mk -f <{$cmddir/mkrevdep spmk_rm} $*
 
   case -d
     exec mk -f <{$cmddir/mkdep $ports/*/build.mk} $*
@@ -45,10 +45,10 @@ switch ($cmd) {
 		for (f in $*) {
 			if (~ $f *.tar.gz && test -f $f) {
 				echo 'TODO: install binary package' $f >[1=2]
-				echo '#' spkg_add $f
+				echo '#' spmk_add $f
 			}
 			if not {
-				echo 'Usage: spkg [-b|-a|-r|-d|-rd|-u] packages...'
+				echo 'Usage: spmk [-b|-a|-r|-d|-rd|-u] packages...'
 				exit 1
 			}
 		}

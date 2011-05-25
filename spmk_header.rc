@@ -79,9 +79,9 @@ fn end_pkg {
 	cd $pkgroot
 	pkgfile=$pkgdest/$target-$arch.pkg.tar.gz
 	$cmddir/mkpkg $pkgdir $pkgfile $prereq $install
-	spkg_add $pkgfile
-	if (test -f $spkg_privkey)
-		openssl dgst -sha1 -sign $spkg_privkey < $pkgfile > $pkgfile.sig
+	spmk_add $pkgfile
+	if (test -f $spmk_privkey)
+		openssl dgst -sha1 -sign $spmk_privkey < $pkgfile > $pkgfile.sig
 	if not
 		msg 'Warning: cannot sign package ' $pkgdest/$pkgfile
 	rm -rf $pkgroot
