@@ -6,7 +6,7 @@ nports=40
 rm -rf $testdir
 
 # where database of packages is stored  
-mkdir -p $testdir/var/lib/spkg
+mkdir -p $testdir/var/lib/spmk
 
 # where fake port tree is generated
 mkdir -p $testdir/usr/ports
