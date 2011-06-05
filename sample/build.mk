@@ -1,8 +1,8 @@
 sample_pkg_ver = 0.1.18-1
 
-sample_pkg:V: sample_pkg-$sample_pkg_ver
+sample-pkg:V: sample-pkg-$sample_pkg_ver
 
-sample_pkg-$sample_pkg_ver: dep1 dep2
+sample-pkg-$sample_pkg_ver: dep1 dep2
 	. $spkg_header
 	gitroot=http://git.example.hg
 	fn download.git {
