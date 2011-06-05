@@ -1,10 +1,15 @@
 test -e $target && exit 0
 
-name=`{echo $target | sed 's/-[0-9].*$//'}
-version=`{echo $target | sed s/$name-//}
 pkgroot=$buildroot/$target
 pkgdir=$pkgroot/pkg
 pkgdest=$ports
+
+for (s in $arch all)
+  if (test -f $pkgdest/$target-$s.pkg.tar.gz)
+    $sudo spmk_add $pkgdest/$target-$s.pkg.tar.gz && exit 0
+
+name=`{echo $target | sed 's/-[0-9].*$//'}
+version=`{echo $target | sed s/$name-//}
 install=''
 
 fn msg {
@@ -16,16 +21,6 @@ fn die {
   exit 1
 }
 
-fn sort_ver {
-  sort -t. -k1,1n -k2,2n -k3,3n -k4,4n -k5,5n
-}
-
-fn find_all_ver {
-  echo $version
-  for (p in $name-*)
-    test -e $p && echo $p | sed s/$name-//
-}
-
 fn download {
   file=$2
   test -z $file && file=`{basename $1}
@@ -35,63 +30,34 @@ fn download {
 
 fn verifysrc {
   msg checking
-  if (test -f $ports/$name/sig) {
-    {
-      while (line=`{read}) {
-        sum=`{echo $line | cut -d' ' -f1}
-        file=`{echo $line | cut -d' ' -f2-}
-        realsum=`{sha1sum $ports/$name/$file | cut -d' ' -f1}
-        if (! ~ $sum $realsum)
-          die $file wrong checksum
-      }
-    } < $ports/$name/sig
-  }
-  if not
-    msg warning: sources not signed
-}
-
-
-fn remove_old {
-  msg 'TODO: remove old version?' $*
-}
-
-fn process_prev_installed {
-  find_all_ver | sort_ver | {
-    while (line=`{read} && test $line '!=' $1) {
-			ver=$line
-      remove_old $name-$line
-		}
-		if (line=`{read} && test -n $line) {
-			msg $name-$line is newer than $target
-			exit 0
-		}
-  }
+	file=$1
+	sum=$2
+	realsum=`{sha1sum $file | awk '{print $1}'}
+	if (! ~ $sum $realsum)
+		die $file wrong checksum
 }
 
 fn install_reason {
   if (echo ' '^$"MKARGS^' ' | grep -v ' '^$name^' ' >/dev/null)
-		echo as_dependency
-	if not
-	  echo explicitely
+    echo as_dependency
+  if not
+    echo explicitely
 }
 
 fn end_pkg {
-	cd $pkgroot
-	pkgfile=$pkgdest/$target-$arch.pkg.tar.gz
-	$cmddir/mkpkg $pkgdir $pkgfile $prereq $install
-	spmk_add $pkgfile
-	if (test -f $spmk_privkey)
-		openssl dgst -sha1 -sign $spmk_privkey < $pkgfile > $pkgfile.sig
-	if not
-		msg 'Warning: cannot sign package ' $pkgdest/$pkgfile
-	rm -rf $pkgroot
+  pkgfile=$pkgdest/$target-$arch.pkg.tar.gz
+  $spmk_cmddir/mkpkg $pkgdir $pkgfile $prereq $install
+  $sudo spmk_add $pkgfile
+  if (test -f $spmk_privkey)
+    openssl dgst -sha1 -sign $spmk_privkey < $pkgfile > $pkgfile.sig
+  if not
+    msg 'Warning: cannot sign package ' $pkgdest/$pkgfile
+  rm -rf $pkgroot
 }
 
 reason=`{install_reason}
 if (test $#REASON -gt 0)
-	reason=$REASON
-
-process_prev_installed $version || true
+  reason=$REASON
 
 rm -rf $pkgroot
 mkdir -p $pkgroot $pkgdir
