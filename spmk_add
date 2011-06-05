@@ -5,12 +5,14 @@ pkgdb="$root/var/lib/spmk"
 tmpdir="$root/tmp/spmk"
 pubkey="$root/key.pub"
 noverify='yes'
+reason='explicit'
 
 while test $# -gt 0; do
   case "$1" in
     -n) noverify='yes'; shift;;
     -f) force='yes'; shift;;
-    -*) echo 'usage: spmk_add [-n] [-f] pkg...' >&2; exit 1;;
+    -d) reason='dependency'; shift;;
+    -*) echo 'usage: spmk_add [-n] [-f] [-d] pkg...' >&2; exit 1;;
     *) break;;
   esac
 done
@@ -32,7 +34,8 @@ current_version() {
 }
 
 remove_files() {
-  tac "$1" | while read -r f ; do
+  awk < "$1" '{print NR " " $0;}' | sort -r -n | sed 's/^[0-9]* //' \
+  | while IFS='' read -r f ; do
     if test -f "$root/$f"; then
       rm -f "$root/$f"
     elif test -d "$root/$f"; then
@@ -41,63 +44,67 @@ remove_files() {
   done
 }
 
-pkgfile="$1"
-pkg=$(basename "$pkgfile" | sed 's/-[^-]*$//')
-pkgname=$(echo "$pkg" | sed 's/-[0-9].*$//')
-tmp="$tmpdir/$pkg"
+add() {
+  pkgfile="$1"
+  pkg=$(basename "$pkgfile" | sed 's/-[^-]*$//')
+  pkgname=$(echo "$pkg" | sed 's/-[0-9].*$//')
+  tmp="$tmpdir/$pkg"
 
-if test -z "$noverify" ; then
-  test -f "spmkfile.sig" || die "Package '$pkgfile' not signed."
-  verify "$pkgfile" "$pkgfile.sig" || die "Package '$pkgfile' is corrupted."
-fi
-
-rm -rf "$tmp"
-mkdir -p "$tmp" || die "Cannot create temp directory '$tmp'"
-trap "rm -rf '$tmp'" EXIT
-exclude="$tmpdir/exclude"
-echo '+PKG' > "$exclude"
-trap "rm -rf '$exclude'" EXIT
-
-gunzip < "$pkgfile" | (cd "$tmp"; tar -x -f - "+PKG") || die "Broken package."
-gunzip < "$pkgfile" | tar -t -f - | grep -v '^+PKG' > $tmp/files \
-|| die "Broken package."
-
-cur=$(current_version "$pkgname")
-
-if test -n "$cur" && test -e "$pkgdb/$cur"; then
-  if test -f "$pkgdb/$pkg/uninstall" ; then
-    sh -c ". '$pkgdb/$pkg/uninstall'"
+  if test -z "$noverify" ; then
+    test -f "spmkfile.sig" || die "Package '$pkgfile' not signed."
+    verify "$pkgfile" "$pkgfile.sig" || die "Package '$pkgfile' is corrupted."
   fi
-  remove_files "$pkgdb/$cur/files"
-  rm -rf "$pkgdb/$cur"
-fi
 
-if test -z "$force"; then
-  while read -r f ; do
-    case "$f" in
-      */) check='-f' ;;
-      *) check='-e' ;;
-    esac
-    if test $check "$root/$f"; then
-      echo "error: File '$root/$f' already exists." >&2
-      s=error
-    fi
-  done < "$tmp/files"
-  test "$s" = error && die 'Aborting install.'
-fi
+  rm -rf "$tmp"
+  mkdir -p "$tmp" || die "Cannot create temp directory '$tmp'"
+  exclude="$tmpdir/exclude"
+  echo '+PKG' > "$exclude"
+  trap "rm -rf '$exclude' '$tmp'" EXIT
 
-if ! gunzip < "$pkgfile" | (cd "$root" && tar -x -f - -X "$exclude") ; then
-  remove_files "$tmp/files"
-  die "Couldn't unpack contents of '$pkgfile'"
-fi
+  gunzip < "$pkgfile" | (cd "$tmp"; tar -x -f - "+PKG") \
+  || die "Broken package."
+  gunzip < "$pkgfile" | tar -t -f - | grep -v '^+PKG' > $tmp/files \
+  || die "Broken package."
 
-if test -f "$tmp/+PKG/install" ; then
-  sh -c ". '$tmp/+PKG/install'" \
-  || {
+  cur=$(current_version "$pkgname")
+
+  if test -n "$cur" && test -e "$pkgdb/$cur"; then
+    test -f "$pkgdb/$pkg/uninstall" && sh -c ". '$pkgdb/$pkg/uninstall'"
+    remove_files "$pkgdb/$cur/files"
+    rm -rf "$pkgdb/$cur"
+  fi
+
+  if test -z "$force"; then
+    while IFS='' read -r f ; do
+      case "$f" in
+        */) check='-f' ;;
+        *) check='-e' ;;
+      esac
+      if test $check "$root/$f"; then
+        echo "error: File '$root/$f' already exists." >&2
+        s=error
+      fi
+    done < "$tmp/files"
+    test "$s" = error && die 'Aborting install.'
+  fi
+
+  if ! gunzip < "$pkgfile" | (cd "$root" && tar -x -f - -X "$exclude") ; then
     remove_files "$tmp/files"
-    die 'Error in install script.'
-  }
-fi
+    die "Couldn't unpack contents of '$pkgfile'"
+  fi
 
-mkdir -p "$pkgdb/$pkg"
-cp "$tmp/+PKG"/* "$tmp/files" "$pkgdb/$pkg"
+  if test -f "$tmp/+PKG/install" ; then
+    sh -c ". '$tmp/+PKG/install'" || {
+      remove_files "$tmp/files"
+      die 'Error in install script.'
+    }
+  fi
+
+  mkdir -p "$pkgdb/$pkg"
+  echo "reason: $reason" >> "$tmp/+PKG/info"
+  cp "$tmp/+PKG"/* "$tmp/files" "$pkgdb/$pkg"
+  rm -rf "$exclude" "$tmp"
+}
+
+for a; do add "$a"; done
+trap '' EXIT
