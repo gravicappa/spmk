@@ -10,10 +10,11 @@ spmk_mk = $etcdir/spmk/local.mk
 pubkey = $etcdir/spmk/pub.key
 spmk_privkey = $etcdir/spmk/priv.key
 tmpdir = `{cleanname $root/tmp/spmk}
-spmk_header = $cmddir/spmk/spmk_header.rc
+spmk_header = $cmddir/spmk/header.subr
 
 binfiles = spmk spmk_add spmk_rm
 cmdfiles = mkpkg mkports mkrevdep mkdep
+subrfiles = header.subr
 
 install:V:
   mkdir -p "$destdir/$bindir" "$destdir/$etcdir/spmk" "$destdir/$cmddir/spmk"
@@ -21,9 +22,12 @@ install:V:
   awk '/^(spmk_mk|pkgdb|root|spmk_header|spmk_privkey)=/ {
          sub(/=.*$/, "");
          printf("%s=%s\n", $1, ENVIRON[$1]);
-         next
+         next;
        }
-       /^cmddir=/ {printf("cmddir=%s/spmk\n", ENVIRON["cmddir"]); next;}
+       /^spmk_cmddir=/ {
+         printf("spmk_cmddir=%s/spmk\n", ENVIRON["cmddir"]);
+         next;
+       }
        {print;}' < spmk > $destdir/$bindir/spmk
   chmod 755 "$destdir/$bindir/spmk"
   for f in spmk_add spmk_rm ; do
@@ -39,6 +43,6 @@ install:V:
     cp "$f" "$destdir/$cmddir/spmk/"
     chmod 755 "$destdir/$cmddir/spmk/$f"
   done
+  cp $subrfiles "$destdir/$cmddir/spmk/"
   cp spmk.mk "$destdir/$spmk_mk"
-  cp spmk_header.rc "$destdir/$spmk_header"
   cp spmk.1 "$destdir/$mandir"
