@@ -4,7 +4,7 @@ root="$HOME/dev/spmk/root"
 pkgdb="$root/var/lib/spmk"
 tmpdir="$root/tmp/spmk"
 pubkey="$root/key.pub"
-noverify='yes'
+noverify=
 reason='explicit'
 
 while test $# -gt 0; do
@@ -51,7 +51,7 @@ add() {
   tmp="$tmpdir/$pkg"
 
   if test -z "$noverify" ; then
-    test -f "spmkfile.sig" || die "Package '$pkgfile' not signed."
+    test -f "$pkgfile.sig" || die "Package '$pkgfile' not signed."
     verify "$pkgfile" "$pkgfile.sig" || die "Package '$pkgfile' is corrupted."
   fi
 
