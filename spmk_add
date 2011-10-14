@@ -4,6 +4,7 @@ root="$HOME/dev/spmk/root"
 pkgdb="$root/var/lib/spmk"
 tmpdir="$root/tmp/spmk"
 pubkey="$root/key.pub"
+exclude="$root/etc/spmk/exclude"
 noverify=
 reason='explicit'
 
@@ -18,8 +19,8 @@ while test $# -gt 0; do
 done
 
 die() {
-	echo error: "$1" >&2
-	exit 1
+  echo error: "$1" >&2
+  exit 1
 }
 
 verify() {
@@ -57,9 +58,10 @@ add() {
 
   rm -rf "$tmp"
   mkdir -p "$tmp" || die "Cannot create temp directory '$tmp'"
-  exclude="$tmpdir/exclude"
-  echo '+PKG' > "$exclude"
-  trap "rm -rf '$exclude' '$tmp'" EXIT
+  excl="$tmpdir/exclude"
+  echo '+PKG' > "$excl"
+  test -f "$exclude" && cat "$exclude" >> "$excl"
+  trap "rm -rf '$excl' '$tmp'" EXIT
 
   gunzip < "$pkgfile" | (cd "$tmp"; tar -x -f - "+PKG") \
   || die "Broken package."
@@ -88,12 +90,12 @@ add() {
     test "$s" = error && die 'Aborting install.'
   fi
 
-  if ! gunzip < "$pkgfile" | (cd "$root" && tar -x -f - -X "$exclude") ; then
+  if ! gunzip < "$pkgfile" | (cd "$root" && tar -x -f - -X "$excl") ; then
     remove_files "$tmp/files"
     die "Couldn't unpack contents of '$pkgfile'"
   fi
 
-  if test -f "$tmp/+PKG/install" ; then
+  if test -z "$spmk_no_installscript" && test -f "$tmp/+PKG/install" ; then
     sh -c ". '$tmp/+PKG/install'" || {
       remove_files "$tmp/files"
       die 'Error in install script.'
@@ -103,7 +105,7 @@ add() {
   mkdir -p "$pkgdb/$pkg"
   echo "reason: $reason" >> "$tmp/+PKG/info"
   cp "$tmp/+PKG"/* "$tmp/files" "$pkgdb/$pkg"
-  rm -rf "$exclude" "$tmp"
+  rm -rf "$excl" "$tmp"
 }
 
 for a; do add "$a"; done

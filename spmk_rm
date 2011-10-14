@@ -2,10 +2,11 @@
 
 root="$HOME/dev/spmk/root"
 pkgdb="$root/var/lib/spmk
+save="$root/etc/spmk/save"
 
 die() {
-	echo error: "$1" >&2
-	exit 1
+  echo error: "$1" >&2
+  exit 1
 }
 
 current_version() {
@@ -16,8 +17,10 @@ current_version() {
 }
 
 remove_files() {
-  tac "$1" | while read -r f ; do
-    if test -f "$root/$f"; then
+  tac "$1" | while PS='' read -r f ; do
+    if test -f "$save" && echo "$f" | grep -f "$save" >/dev/null; then
+      mv "$root/$f" "$root/$f.saved"
+    elif test -f "$root/$f"; then
       rm -f "$root/$f"
     elif test -d "$root/$f"; then
       rmdir "$root/$f" 2>/dev/null || true

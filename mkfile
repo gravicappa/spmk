@@ -32,10 +32,15 @@ install:V:
   chmod 755 "$destdir/$bindir/spmk"
   for f in spmk_add spmk_rm ; do
     awk \
-      '/^root=/ {printf("root=\"%s\"\n", ENVIRON["root"]); next;}
-       /^pkgdb=/ {printf("pkgdb=\"%s\"\n", ENVIRON["pkgdb"]); next;}
-       /^tmpdir=/ {printf("tmpdir=\"%s\"\n", ENVIRON["tmpdir"]); next;}
-       /^pubkey=/ {printf("pubkey=\"%s\"\n", ENVIRON["pubkey"]); next;}
+      '/^root=/ {printf("root=\"%s\"\n", ENVIRON["root"]); next}
+       /^pkgdb=/ {printf("pkgdb=\"%s\"\n", ENVIRON["pkgdb"]); next}
+       /^tmpdir=/ {printf("tmpdir=\"%s\"\n", ENVIRON["tmpdir"]); next}
+       /^pubkey=/ {printf("pubkey=\"%s\"\n", ENVIRON["pubkey"]); next}
+       /^save=/ {printf("save=\"%s/spmk/save\"\n", ENVIRON["etcdir"]);next}
+       /^exclude=/ {
+         printf("exclude=\"%s/spmk/exclude\"\n", ENVIRON["etcdir"])
+         next
+       }
        {print}' < "$f" > "$destdir/$bindir/$f"
       chmod 755 "$destdir/$bindir/$f"
   done
