@@ -44,7 +44,7 @@ fn install_reason {
     echo explicitely
 }
 
-fn end_pkg {
+fn sigexit {
   pkgfile=$pkgdest/$target-$arch.pkg.tar.gz
   $spmk_cmddir/mkpkg $pkgdir $pkgfile $prereq $install
   if (test -f $spmk_privkey)
