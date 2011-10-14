@@ -62,7 +62,6 @@ fn mkport {
     echo '    ''bs='''^`{rnd 16384}^' ''count=1'' >[2]/dev/null'
     echo '  touch $pkgdir/usr/bin/$name'
     echo '  sleep 1'
-    echo '  end_pkg'
     echo
 		#echo '< '^$ports_root^'/spmk.mk'
   } > $dir/$port_name/$port_mkfile

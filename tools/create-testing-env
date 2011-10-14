@@ -13,6 +13,9 @@ mkdir -p $testdir/usr/ports
 
 pwd=`{pwd}
 
-mk 'root='$pwd/$testdir 'prefix='$pwd/$testdir/usr || exit 1
+mk 'root='$pwd/$testdir 'prefix='$pwd/$testdir/usr \
+   'etcdir='$pwd/$testdir/etc || exit 1
 
 ./tools/generate-fake-ports $testdir/usr/ports $nports
+
+cp ./tools/*.key $pwd/$testdir/etc/spmk/
