@@ -17,7 +17,7 @@ current_version() {
 }
 
 remove_files() {
-  tac "$1" | while PS='' read -r f ; do
+  tac "$1" | while IFS='' read -r f ; do
     if test -f "$save" && echo "$f" | grep -f "$save" >/dev/null; then
       mv "$root/$f" "$root/$f.saved"
     elif test -f "$root/$f"; then
