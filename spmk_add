@@ -65,8 +65,8 @@ add() {
 
   gunzip < "$pkgfile" | (cd "$tmp"; tar -x -f - "+PKG") \
   || die "Broken package."
-  gunzip < "$pkgfile" | tar -t -f - | grep -v '^+PKG' > $tmp/files \
-  || die "Broken package."
+  gunzip < "$pkgfile" | tar -t -f - -X "$excl" | grep -v '^+PKG' \
+  > $tmp/files || die "Broken package."
 
   cur=$(current_version "$pkgname")
 
@@ -104,7 +104,8 @@ add() {
 
   mkdir -p "$pkgdb/$pkg"
   echo "reason: $reason" >> "$tmp/+PKG/info"
-  cp "$tmp/+PKG"/* "$tmp/files" "$pkgdb/$pkg"
+  gunzip < "$pkgfile" | tar -t -f - | grep -v '^+PKG' > "$pkgdb/$pkg/files"
+  cp "$tmp/+PKG"/* "$pkgdb/$pkg"
   rm -rf "$excl" "$tmp"
 }
 
