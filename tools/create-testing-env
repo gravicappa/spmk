@@ -19,3 +19,6 @@ mk 'root='$pwd/$testdir 'prefix='$pwd/$testdir/usr \
 ./tools/generate-fake-ports $testdir/usr/ports $nports
 
 cp ./tools/*.key $pwd/$testdir/etc/spmk/
+
+echo 'usr/bin/pcc' >> $pwd/$testdir/etc/spmk/exclude
+echo 'usr/share/dev/file' >> $pwd/$testdir/etc/spmk/save
