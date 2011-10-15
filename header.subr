@@ -13,11 +13,11 @@ version=`{echo $target | sed s/$name-//}
 install=''
 
 fn msg {
-  echo '=' $target: $* >[1=2]
+  echo '#' $target: $* >[1=2]
 }
 
 fn die {
-  echo '!' $target: error: $* >[1=2]
+  echo '#!' $target: error: $* >[1=2]
   exit 1
 }
 
