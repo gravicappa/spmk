@@ -8,8 +8,7 @@ BEGIN {print "MKSHELL=rc"}
 }
 
 /^[ \t]/ && rule {
-	print "  echo $target"
-	print ""
+	printf("  echo $target\n\n")
 	rule = 0
 	next
 }
