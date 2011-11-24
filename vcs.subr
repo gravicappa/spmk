@@ -1,5 +1,5 @@
-# usage: download_git repo name [tag]
 fn download_git {
+	# usage: download_git repo dir [tag]
 	if (test -d $2)
 		cd $name && git pull origin
 	if not
@@ -13,8 +13,8 @@ fn download_git {
 		}
 }
 
-# usage: download_hg repo name [tag]
 fn download_hg {
+	# usage: download_hg repo dir [tag]
 	if (test -d $2)
 		cd $name && hg pull -u
 	if not
