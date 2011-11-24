@@ -1,3 +1,6 @@
+MKSHELL = rc
+
+destdir = ''
 prefix = /usr/local
 bindir = $prefix/sbin
 etcdir = $prefix/etc
@@ -6,20 +9,20 @@ mandir = $prefix/share/man/man1
 
 root = /
 pkgdb = `{cleanname $root/var/lib/spmk}
-spmk_mk = $etcdir/spmk/local.mk
+spmk_mk_d = $etcdir/spmk
 pubkey = $etcdir/spmk/pub.key
 spmk_privkey = $etcdir/spmk/priv.key
 tmpdir = `{cleanname $root/tmp/spmk}
 spmk_header = $cmddir/spmk/header.subr
 
 binfiles = spmk spmk_add spmk_rm
-cmdfiles = mkpkg mkports mkrevdep mkdep
+cmdfiles = mkpkg mkports.awk mkrevdep mkdep.awk
 subrfiles = header.subr
 
 install:V:
-  mkdir -p "$destdir/$bindir" "$destdir/$etcdir/spmk" "$destdir/$cmddir/spmk"
-  mkdir -p "$destdir/$mandir"
-  awk '/^(spmk_mk|pkgdb|root|spmk_header|spmk_privkey)=/ {
+  mkdir -p $destdir/$bindir $destdir/$etcdir/spmk $destdir/$cmddir/spmk
+  mkdir -p $destdir/$mandir
+  awk '/^(spmk_mk_d|pkgdb|root|spmk_header|spmk_privkey)=/ {
          sub(/=.*$/, "");
          printf("%s=%s\n", $1, ENVIRON[$1]);
          next;
@@ -29,8 +32,8 @@ install:V:
          next;
        }
        {print;}' < spmk > $destdir/$bindir/spmk
-  chmod 755 "$destdir/$bindir/spmk"
-  for f in spmk_add spmk_rm ; do
+  chmod 755 $destdir/$bindir/spmk
+  for (f in spmk_add spmk_rm) {
     awk \
       '/^root=/ {printf("root=\"%s\"\n", ENVIRON["root"]); next}
        /^pkgdb=/ {printf("pkgdb=\"%s\"\n", ENVIRON["pkgdb"]); next}
@@ -41,13 +44,13 @@ install:V:
          printf("exclude=\"%s/spmk/exclude\"\n", ENVIRON["etcdir"])
          next
        }
-       {print}' < "$f" > "$destdir/$bindir/$f"
-      chmod 755 "$destdir/$bindir/$f"
-  done
-  for f in $cmdfiles ; do
-    cp "$f" "$destdir/$cmddir/spmk/"
-    chmod 755 "$destdir/$cmddir/spmk/$f"
-  done
-  cp $subrfiles "$destdir/$cmddir/spmk/"
-  cp spmk.mk "$destdir/$spmk_mk"
-  cp spmk.1 "$destdir/$mandir"
+       {print}' < $f > $destdir/$bindir/$f
+      chmod 755 $destdir/$bindir/$f
+  }
+  for (f in $cmdfiles) {
+    cp $f $destdir/$cmddir/spmk/
+    chmod 755 $destdir/$cmddir/spmk/$f
+  }
+  touch $destdir/$spmk_mk_d/empty.mk
+  cp $subrfiles $destdir/$cmddir/spmk/
+  cp spmk.1 $destdir/$mandir

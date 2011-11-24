@@ -1,4 +1,3 @@
-#!/bin/awk -f
 BEGIN {print "MKSHELL=rc"}
 
 /^[^ \t].*:/ {

@@ -2,7 +2,7 @@
 
 spmk_cmddir=$HOME/dev/spmk
 spmk_header=$HOME/dev/spmk/spmk_header.subr
-spmk_mk=$HOME/dev/spmk/spmk.mk
+spmk_mk_d=$HOME/dev/spmk/spmk.d
 spmk_privkey=$HOME/dev/spmk/priv.key
 root=$HOME/dev/spmk/root
 pkgdb=$root/var/lib/spmk
@@ -18,11 +18,12 @@ switch ($cmd) {
 		test -f build.mk || { echo 'no build.mk' >[1=2]; exit 1 }
 		dir=`{pwd}
 		cd $pkgdb
-    exec mk -f <{$spmk_cmddir/mkports $"dir/build.mk $ports/*/build.mk}
+    exec mk -f \
+		  <{awk -f $spmk_cmddir/mkports.awk $"dir/build.mk $ports/*/build.mk}
 
   case -b
     cd $pkgdb
-    exec mk -f <{$spmk_cmddir/mkports $ports/*/build.mk} $*
+    exec mk -f <{awk -f $spmk_cmddir/mkports.awk $ports/*/build.mk} $*
 
   case -a
 		spmk_add $*
@@ -31,7 +32,7 @@ switch ($cmd) {
     exec mk -f <{$spmk_cmddir/mkrevdep spmk_rm} $*
 
   case -d
-    exec mk -f <{$spmk_cmddir/mkdep $ports/*/build.mk} $*
+    exec mk -f <{awk -f $spmk_cmddir/mkdep.awk $ports/*/build.mk} $*
 
   case -rd
     exec mk -f <{$spmk_cmddir/mkrevdep echo} $*
