@@ -1,9 +1,11 @@
 BEGIN {print "MKSHELL=rc"}
 
 /^[^ \t].*:/ {
-	sub(/:.*:/, ":VQ:")
+	sub(/:[A-Z]+:/, ":")
+	sub(/:/, ":VQ:")
 	rule = 1
 	print
+	next
 }
 
 /^[ \t]/ && rule {
@@ -11,3 +13,5 @@ BEGIN {print "MKSHELL=rc"}
 	rule = 0
 	next
 }
+
+/^[^ \t]/ {print}
