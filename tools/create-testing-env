@@ -1,6 +1,7 @@
 #!/usr/bin/env rc
 
-testdir=root
+pwd=`{pwd}
+testdir=$pwd/root
 nports=40
 
 rm -rf $testdir
@@ -11,14 +12,21 @@ mkdir -p $testdir/var/lib/spmk
 # where fake port tree is generated
 mkdir -p $testdir/usr/ports
 
-pwd=`{pwd}
+mk 'root='$testdir 'prefix='$testdir/usr \
+   'etcdir='$testdir/etc || exit 1
 
-mk 'root='$pwd/$testdir 'prefix='$pwd/$testdir/usr \
-   'etcdir='$pwd/$testdir/etc || exit 1
+echo 'DONE' >[1=2]
 
 ./tools/generate-fake-ports $testdir/usr/ports $nports
 
-cp ./tools/*.key $pwd/$testdir/etc/spmk/
+cp ./tools/*.key $testdir/etc/spmk/
 
-echo 'usr/bin/pcc' >> $pwd/$testdir/etc/spmk/exclude
-echo 'usr/share/dev/file' >> $pwd/$testdir/etc/spmk/save
+echo 'usr/bin/pcc' >> $testdir/etc/spmk/exclude
+echo 'usr/share/dev/file' >> $testdir/etc/spmk/save
+
+{
+	echo '#!/bin/sh'
+	echo 'export PATH='$testdir/usr/sbin:'$PATH'
+	echo 'exec "$@"'
+} > $testdir/s
+chmod +x $testdir/s

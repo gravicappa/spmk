@@ -44,7 +44,8 @@ fn mkport {
     echo $port_name^:V: $port_name^'-'^$ver
     echo
     echo $port_name^'-'^$ver:Q: $deps
-    echo '  . $spmk_header'
+    echo '  . $spmk_inc/main'
+    echo '  . $spmk_inc/vcs'
     echo '  msg download'
     echo '  #test -f $port_name.tar.gz \'
     echo '  #|| wget http://nosuchhost.org/$port_name.tar.gz'

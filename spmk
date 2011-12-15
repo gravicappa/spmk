@@ -1,7 +1,8 @@
 #!/usr/bin/env rc
 
 spmk_cmddir=$HOME/dev/spmk
-spmk_header=$HOME/dev/spmk/spmk_header.subr
+spmk_inc=$HOME/dev/spmk/
+spmk_header=$spmk_inc/main
 spmk_mk_d=$HOME/dev/spmk/spmk.d
 spmk_privkey=$HOME/dev/spmk/priv.key
 root=$HOME/dev/spmk/root
