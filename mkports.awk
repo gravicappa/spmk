@@ -1,6 +1,6 @@
 BEGIN {print "MKSHELL=rc"}
 
-/^[ \t]*\.[ \t]*\$spmk_header/ {
+/^[ \t]*\.[ \t]*\$spmk_inc/ {
 	f = FILENAME;
 	sub(/\/[^\/]*$/, "", f);
 	print "  portdir='" f "'";
