@@ -19,7 +19,8 @@ echo 'DONE' >[1=2]
 
 ./tools/generate-fake-ports $testdir/usr/ports $nports
 
-cp ./tools/*.key $testdir/etc/spmk/
+cp ./tools/pub.key $testdir/etc/spmk/pubkeys/
+cp ./tools/priv.key $testdir/etc/spmk/
 
 echo 'usr/bin/pcc' >> $testdir/etc/spmk/exclude
 echo 'usr/share/dev/file' >> $testdir/etc/spmk/save

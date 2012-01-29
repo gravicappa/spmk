@@ -10,7 +10,7 @@ mandir = $prefix/share/man/man1
 root = /
 pkgdb = `{cleanname $root/var/lib/spmk}
 spmk_mk_d = $etcdir/spmk
-pubkey = $etcdir/spmk/pub.key
+pubkeydir = $etcdir/spmk/pubkeys
 spmk_privkey = $etcdir/spmk/priv.key
 tmpdir = `{cleanname $root/tmp/spmk}
 spmk_inc = $cmddir/spmk/inc
@@ -21,7 +21,7 @@ subrfiles = main vcs
 
 install:V:
   mkdir -p $destdir/$bindir $destdir/$etcdir/spmk $destdir/$cmddir/spmk
-  mkdir -p $destdir/$mandir $destdir/$spmk_inc
+  mkdir -p $destdir/$pubkeydir $destdir/$mandir $destdir/$spmk_inc
   awk '/^(spmk_mk_d|pkgdb|root|spmk_inc|spmk_privkey)=/ {
          sub(/=.*$/, "");
          printf("%s=%s\n", $1, ENVIRON[$1]);
@@ -38,8 +38,8 @@ install:V:
       '/^root=/ {printf("root=\"%s\"\n", ENVIRON["root"]); next}
        /^pkgdb=/ {printf("pkgdb=\"%s\"\n", ENVIRON["pkgdb"]); next}
        /^tmpdir=/ {printf("tmpdir=\"%s\"\n", ENVIRON["tmpdir"]); next}
-       /^pubkey=/ {printf("pubkey=\"%s\"\n", ENVIRON["pubkey"]); next}
-       /^save=/ {printf("save=\"%s/spmk/save\"\n", ENVIRON["etcdir"]);next}
+       /^save=/ {printf("save=\"%s/spmk/save\"\n", ENVIRON["etcdir"]); next}
+       /^pubkeydir=/ {printf("pubkeydir=\"%s\"\n", ENVIRON["pubkeydir"]); next}
        /^exclude=/ {
          printf("exclude=\"%s/spmk/exclude\"\n", ENVIRON["etcdir"])
          next

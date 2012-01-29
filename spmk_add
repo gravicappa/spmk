@@ -3,7 +3,7 @@
 root="$HOME/dev/spmk/root"
 pkgdb="$root/var/lib/spmk"
 tmpdir="$root/tmp/spmk"
-pubkey="$root/key.pub"
+pubkeydir="$root/keys"
 exclude="$root/etc/spmk/exclude"
 noverify=
 reason='explicit'
@@ -24,7 +24,12 @@ die() {
 }
 
 verify() {
-  openssl dgst -sha1 -verify "$pubkey" -signature "$2" < "$1" > /dev/null
+  for k in "$pubkeydir"/*; do
+    if openssl dgst -sha1 -verify "$k" -signature "$2" <"$1" >/dev/null; then
+      return
+    fi
+  done
+  false
 }
 
 current_version() {
