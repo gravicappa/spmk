@@ -13,21 +13,21 @@ test -n $"arch || arch=`{uname -m}
 
 cmd=$1
 if (~ $cmd -*)
-	shift
+  shift
 switch ($cmd) {
-	case ''
-		test -f build.mk || { echo 'no build.mk' >[1=2]; exit 1 }
-		dir=`{pwd}
-		cd $pkgdb
+  case ''
+    test -f build.mk || { echo 'no build.mk' >[1=2]; exit 1 }
+    dir=`{pwd}
+    cd $pkgdb
     exec mk -f \
-		  <{awk -f $spmk_cmddir/mkports.awk $"dir/build.mk $ports/*/build.mk}
+      <{awk -f $spmk_cmddir/mkports.awk $"dir/build.mk $ports/*/build.mk}
 
   case -b
     cd $pkgdb
     exec mk -f <{awk -f $spmk_cmddir/mkports.awk $ports/*/build.mk} $*
 
   case -a
-		spmk_add $*
+    spmk_add $*
 
   case -r
     exec mk -f <{$spmk_cmddir/mkrevdep spmk_rm} $*
@@ -38,17 +38,17 @@ switch ($cmd) {
   case -rd
     exec mk -f <{$spmk_cmddir/mkrevdep echo} $*
 
-	case -u
-		echo 'TODO: update system' >[1=2]
-		exit 1
+  case -u
+    echo 'TODO: update system' >[1=2]
+    exit 1
 
   case *
-		for (f in $*) {
-			if (~ $f *.tar.gz && test -f $f)
-				spmk_add $f
-			if not {
-				echo 'Usage: spmk [-b|-a|-r|-d|-rd|-u] packages...'
-				exit 1
-			}
-		}
+    for (f in $*) {
+      if (~ $f *.tar.gz && test -f $f)
+        spmk_add $f
+      if not {
+        echo 'Usage: spmk [-b|-a|-r|-d|-rd|-u] packages...'
+        exit 1
+      }
+    }
 }

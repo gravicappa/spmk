@@ -1,29 +1,29 @@
 fn download_git {
-	# usage: download_git repo dir [tag]
-	if (test -d $2)
-		cd $name && git pull origin
-	if not
-		git clone $1 $2
-	rm -rf $2-build
-	git clone $2 $2-build
-	if (test -n $3)
-		@ {
-			cd $2-build
-			git checkout `{echo $3 | sed 's/-[0-9]*$//'}
-		}
+  # usage: download_git repo dir [tag]
+  if (test -d $2)
+    cd $name && git pull origin
+  if not
+    git clone $1 $2
+  rm -rf $2-build
+  git clone $2 $2-build
+  if (test -n $3)
+    @ {
+      cd $2-build
+      git checkout `{echo $3 | sed 's/-[0-9]*$//'}
+    }
 }
 
 fn download_hg {
-	# usage: download_hg repo dir [tag]
-	if (test -d $2)
-		cd $name && hg pull -u
-	if not
-		hg clone $1 $2
-	rm -rf $2-build
-	cp -r $2 $2-build
-	if (test -n $3)
-		@ {
-			cd $2-build
-			hg checkout `{echo $3 | sed 's/-[0-9]*$//'}
-		}
+  # usage: download_hg repo dir [tag]
+  if (test -d $2)
+    cd $name && hg pull -u
+  if not
+    hg clone $1 $2
+  rm -rf $2-build
+  cp -r $2 $2-build
+  if (test -n $3)
+    @ {
+      cd $2-build
+      hg checkout `{echo $3 | sed 's/-[0-9]*$//'}
+    }
 }
