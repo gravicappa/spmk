@@ -40,7 +40,7 @@ current_version() {
 }
 
 remove_files() {
-  awk < "$1" '{print NR " " $0;}' | sort -r -n | sed 's/^[0-9]* //' \
+  awk < "$1" '{print NR " " $0}' | sort -r -n | sed 's/^[0-9]* //' \
   | while IFS='' read -r f ; do
     if test -f "$root/$f"; then
       rm -f "$root/$f"
