@@ -21,4 +21,4 @@ Contacts
 --------
 jid: ramil.fh@jabber.ru
 mail: echo gmx.co.uk ramil | awk '{print $2 "@" $1}'
-irc: gravicappa at freenode.net && oftc.net
+irc: gravicappa at irc.freenode.net && irc.oftc.net

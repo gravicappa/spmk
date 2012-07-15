@@ -1,0 +1,54 @@
+.Dd July 15, 2012
+.Dt SPMK_ADD 1 1
+.Os
+.Sh NAME
+
+.Nm spmk_add
+.Nd install package from tarball
+
+.Sh SYNOPSIS
+.Nm
+.Op Fl f
+.Op Fl n
+.Op Fl d
+.Ar package
+.Bk -words
+.Op Ar packages ...
+.Ek
+
+.Sh DESCRIPTION
+.Nm
+installs package performing following steps:
+.Bl -enum
+.It
+For package tarball
+.Pa $pkg.tar.gz .
+Verifies package with signature
+.Pa $pkg.tar.gz.sig
+using keys in
+.Pa /etc/spmk/pubkeys
+directory.
+.It
+If package with the same name is installed removes that package.
+.It
+Checks if installing package would overwrite existing files (stops with error
+by default).
+.It
+Unpacks package files.
+.It
+Runs package's
+.Pa install
+script if exists.
+.El
+
+Options:
+.Bl -tag
+.It Ar -f
+Force overwrite of already existing files.
+.It Ar -n
+Don't verify package signature.
+.It Ar -d
+Mark package as installed
+.Ql as dependency
+(used by spmk).
+.El

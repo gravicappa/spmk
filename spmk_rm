@@ -10,7 +10,7 @@ die() {
 }
 
 current_version() {
-  for f in "$pkgdb/$1"-[0-9]*; do
+  for f in "$pkgdb"/"$1"-[0-9]*; do
     basename "$f"
     break
   done
@@ -31,7 +31,7 @@ remove_files() {
 
 remove() {
   pkg="$1"
-  test -d "$pkgdb/$pkg" || pkg=$(current_version "$1")
+  test -d "$pkgdb/$pkg" || pkg="$(current_version "$1")"
   test -d "$pkgdb/$pkg" || die "Cannot find package '$1'."
 
   if test -f "$pkgdb/$pkg/uninstall" ; then
