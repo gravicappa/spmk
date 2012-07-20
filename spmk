@@ -16,15 +16,15 @@ if (~ $cmd -*)
   shift
 switch ($cmd) {
   case ''
-    test -f build.mk || { echo 'no build.mk' >[1=2]; exit 1 }
+    test -f build.mk || {echo 'no build.mk' >[1=2]; exit 1}
     dir=`{pwd}
     cd $pkgdb
     exec mk -f \
-      <{awk -f $spmk_cmddir/mkports.awk $"dir/build.mk $ports/*/build.mk}
+      <{awk -f $spmk_cmddir/mkports.awk $"dir/build.mk $ports/*/*/build.mk}
 
   case -b
     cd $pkgdb
-    exec mk -f <{awk -f $spmk_cmddir/mkports.awk $ports/*/build.mk} $*
+    exec mk -f <{awk -f $spmk_cmddir/mkports.awk $ports/*/*/build.mk} $*
 
   case -a
     spmk_add $*
@@ -33,7 +33,7 @@ switch ($cmd) {
     exec mk -f <{$spmk_cmddir/mkrevdep spmk_rm} $*
 
   case -d
-    exec mk -f <{awk -f $spmk_cmddir/mkdep.awk $ports/*/build.mk} $*
+    exec mk -f <{awk -f $spmk_cmddir/mkdep.awk $ports/*/*/build.mk} $*
 
   case -rd
     exec mk -f <{$spmk_cmddir/mkrevdep echo} $*

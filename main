@@ -1,17 +1,5 @@
 test -e $target && exit 0
 
-pkgroot=$buildroot/$target
-pkgdir=$pkgroot/pkg
-pkgdest=$ports
-
-for (s in $arch all)
-  if (test -f $pkgdest/$target-$s.pkg.tar.gz)
-    $sudo spmk_add $pkgdest/$target-$s.pkg.tar.gz && exit 0
-
-name=`{echo $target | sed 's/-[0-9].*$//'}
-version=`{echo $target | sed s/$name-//}
-install=''
-
 fn msg {
   echo '#' $target: $* >[1=2]
 }
@@ -50,7 +38,7 @@ fn sigexit {
     pkgfile=$pkgdest/$target-$arch.pkg.tar.gz
     $spmk_cmddir/mkpkg $pkgdir $pkgfile $prereq $install
     if (test -f $spmk_privkey)
-      openssl dgst -sha1 -sign $spmk_privkey < $pkgfile > $pkgfile.sig
+      openssl dgst -sha1 -sign $spmk_privkey <$pkgfile >$pkgfile.sig
     if not
       msg 'Warning: cannot sign package ' $pkgdest/$pkgfile
     $sudo spmk_add $pkgfile
@@ -58,6 +46,18 @@ fn sigexit {
   }
   exit $s
 }
+
+pkgroot=$buildroot/$target
+pkgdir=$pkgroot/pkg
+pkgdest=$ports
+
+for (s in $arch all)
+  if (test -f $pkgdest/$target-$s.pkg.tar.gz)
+    $sudo spmk_add $pkgdest/$target-$s.pkg.tar.gz && exit 0
+
+name=`{echo $target | sed 's/-[0-9].*$//'}
+version=`{echo $target | sed s/$name-//}
+install=''
 
 reason=`{install_reason}
 if (test $#REASON -gt 0)

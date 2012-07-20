@@ -1,11 +1,27 @@
 SPMK
 ====
-Simple ports and package system. Ports part implemented in 9base tools (rc,
-mk). Package management (spmk_add, spmk_rm) currently implemented in
-portable POSIX tools (busybox friendly) since it is intended to work in
-embedded systems (primarily linux). Rc-versions of these scripts are planned.
+Simple ports and package system. 
+Features:
+
+	* dependency resolving,
+	* support of binary packages,
+	* package signing (currently uses openssl, polarssl is planned).
+
+Ports part implemented in 9base tools (rc, mk). Package management (spmk_add,
+spmk_rm) currently implemented in portable POSIX tools (busybox friendly)
+since it is intended to work in embedded systems (primarily linux).
+Rc-versions of these scripts are planned.
 
 More extensive documentation is not yet written.
+
+Requirements
+------------
+
+	* 9base, p9p (tested on 9base)
+	* openssl
+	* fakeroot
+	* tar, gzip
+	* coreutils (for cp, mv, rm and package management tools)
 
 Development and testing
 -----------------------

@@ -12,8 +12,8 @@ mkdir -p $pkgdir/+PKG
 	for (dep in $pkgdep)
 		echo depend: $dep
 	echo size: `{du -s $pkgdir | awk '{print $1}'}
-} > $pkgdir/+PKG/info
+} >$pkgdir/+PKG/info
 
 test -n $"pkginst && test -f $"pkginst && cp $pkginst $pkgdir/+PKG/install
 
-@{cd $pkgdir && fakeroot -- tar -c *} | gzip > $pkgfile
+@{cd $pkgdir && fakeroot -- tar -c *} | gzip >$pkgfile

@@ -17,7 +17,7 @@ mk 'root='$testdir 'prefix='$testdir/usr \
 
 echo 'DONE' >[1=2]
 
-./tools/generate-fake-ports $testdir/usr/ports $nports
+./tools/generate-fake-ports $testdir/usr/ports/main $nports
 
 cp ./tools/pub.key $testdir/etc/spmk/pubkeys/
 cp ./tools/priv.key $testdir/etc/spmk/
