@@ -1,0 +1,12 @@
+#!/usr/bin/env rc
+
+for (file in /var/log/packages/*) {
+  p=`{basename $file}
+  name=`{echo $p | sed 's/-[0-9].*$//'}
+  tail=`{echo $p | sed s/$name-//}
+  ver=`{echo $tail | awk -F- '{print $1}'}
+  arch=`{echo $tail | awk -F- '{print (NF > 2) ? $(NF-1) : ""}'}
+  pkgver=`{echo $tail | awk -F- '{print $NF}'}
+  echo $name-$ver-$pkgver: $file
+  echo
+}
