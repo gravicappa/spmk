@@ -23,20 +23,23 @@ install:V:
   mkdir -p $destdir/$bindir $destdir/$etcdir/spmk $destdir/$cmddir/spmk
   mkdir -p $destdir/$pubkeydir $destdir/$mandir $destdir/$spmk_inc
   awk '/^(spmk_mk_d|pkgdb|root|spmk_inc|spmk_privkey)=/ {
-         sub(/=.*$/, "");
-         printf("%s=%s\n", $1, ENVIRON[$1]);
-         next;
+         sub(/=.*$/, "")
+         printf("%s=%s\n", $1, ENVIRON[$1])
+         next
        }
        /^spmk_cmddir=/ {
-         printf("spmk_cmddir=%s/spmk\n", ENVIRON["cmddir"]);
-         next;
+         printf("spmk_cmddir=%s/spmk\n", ENVIRON["cmddir"])
+         next
        }
-       {print;}' < spmk > $destdir/$bindir/spmk
+       {print}' < spmk > $destdir/$bindir/spmk
   chmod 755 $destdir/$bindir/spmk
   for (f in spmk_add spmk_rm) {
     awk \
-      '/^root=/ {printf("root=\"%s\"\n", ENVIRON["root"]); next}
-       /^pkgdb=/ {printf("pkgdb=\"%s\"\n", ENVIRON["pkgdb"]); next}
+      '/^root=/ {printf("root=\"${SPMK_ROOT:-%s}\"\n", ENVIRON["root"]); next}
+       /^pkgdb=/ {
+         printf("pkgdb=\"${SPMK_DB:-%s}\"\n", ENVIRON["pkgdb"])
+         next
+       }
        /^tmpdir=/ {printf("tmpdir=\"%s\"\n", ENVIRON["tmpdir"]); next}
        /^save=/ {printf("save=\"%s/spmk/save\"\n", ENVIRON["etcdir"]); next}
        /^pubkeydir=/ {printf("pubkeydir=\"%s\"\n", ENVIRON["pubkeydir"]); next}
