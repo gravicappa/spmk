@@ -1,17 +1,17 @@
 #!/usr/bin/env rc
 
 pkgdir=$1
-pkgfile=$2
-pkgdep=$3
-pkginst=$4
+pkgdep=$2
+pkginst=$3
+pkgfile=$4
 
 rm -rf $pkgdir/+PKG
 mkdir -p $pkgdir/+PKG
 {
-	echo name: `{basename $pkgfile | sed 's/-[0-9].*$//'}
-	for (dep in $pkgdep)
-		echo depend: $dep
-	echo size: `{du -s $pkgdir | awk '{print $1}'}
+  echo name: `{basename $pkgfile | sed 's/-[0-9].*$//'}
+  for (dep in $pkgdep)
+    echo depend: $dep
+  echo size: `{du -s $pkgdir | awk '{print $1}'}
 } >$pkgdir/+PKG/info
 
 test -n $"pkginst && test -f $"pkginst && cp $pkginst $pkgdir/+PKG/install

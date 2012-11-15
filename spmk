@@ -7,6 +7,7 @@ root=$HOME/dev/spmk/root
 pkgdb=$root/var/lib/spmk
 ports=$root/usr/ports
 buildroot=$root/tmp/build
+pkgfmt='$target-$arch.pkg.tar.gz'
 test -n $"arch || arch=`{uname -m}
 
 fn mkports {

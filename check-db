@@ -3,39 +3,39 @@
 dir=$1
 
 fn die {
-	echo '!' error: $* >[1=2]
-	exit 1
+  echo '!' error: $* >[1=2]
+  exit 1
 }
 
 fn find_package {
-	if (test -d $1) 
-		echo $1
-	if not {
-		dep=$1'-'*
-		if (test -d $dep(1))
-			echo $dep
-	}
+  if (test -d $1)
+    echo $1
+  if not {
+    dep=$1'-'*
+    if (test -d $dep(1))
+      echo $dep
+  }
 }
 
 fn check_pkg_list {
-	if (test -f $1) {
-		{
-			while (line=`{read}) {
-				if (test $#line -gt 0) {
-					pkg=`{find_package $line}
-					if (test -z $pkg)
-						die Package $line does not exists
-				}
-			}
-		} < $1
-	}
+  if (test -f $1) {
+    {
+      while (line=`{read}) {
+        if (test $#line -gt 0) {
+          pkg=`{find_package $line}
+          if (test -z $pkg)
+            die Package $line does not exists
+        }
+      }
+    } < $1
+  }
 }
 
 @{
-	cd $dir
+  cd $dir
   for (f in *)
-		if (test -d $f) {
-			check_pkg_list $f/deps
-			check_pkg_list $f/required_by
-		}
+    if (test -d $f) {
+      check_pkg_list $f/deps
+      check_pkg_list $f/required_by
+    }
 }
