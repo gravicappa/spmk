@@ -39,6 +39,7 @@ fn sigexit {
   exit $s
 }
 
+portdir=`{dirname $portfile}
 pkgroot=$buildroot/$target
 pkgdir=$pkgroot/pkg
 pkgdest=$ports

@@ -13,7 +13,7 @@ fn mkports {
   for (f in $ports/*/spmk_*) test -x $f && $f
   awk '
     BEGIN {print "MKSHELL=rc"}
-    /^[ \t]*\.[ \t]*\$spmk_inc/ {print "  portfile='" FILENAME "'"}
+    /^[ \t]*\.[ \t]*\$spmk_inc/ {print "  portfile=''" FILENAME "''"}
     {print}
     END {print "<|cat $spmk_mk_d/*.mk"}' $ports/*/*/build.mk $*
 }
