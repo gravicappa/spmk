@@ -27,8 +27,8 @@ fn install_reason {
 fn sigexit {
   s=$status
   if (~ $s '') {
-    pkgfile=$pkgdest/$target-$arch.pkg.tar.gz
-    spmk_pkg $pkgdir $pkgfile $prereq $install
+    eval 'f=`{echo' $"pkgfmt '}'
+    spmk_pkg $pkgdir $"prereq $install $pkgdest/$"f
     if (test -f $spmk_privkey)
       openssl dgst -sha1 -sign $spmk_privkey <$pkgdest/$"f >$pkgdest/$"f.sig
     if not
@@ -39,6 +39,7 @@ fn sigexit {
   exit $s
 }
 
+portdir=`{dirname $portfile}
 pkgroot=$buildroot/$target
 pkgdir=$pkgroot/pkg
 pkgdest=$ports
