@@ -4,6 +4,10 @@ pwd=`{pwd}
 testdir=$pwd/root
 nports=40
 
+fn msg {
+  echo '==' $"*
+}
+
 rm -rf $testdir
 
 # where database of packages is stored  
@@ -12,15 +16,28 @@ mkdir -p $testdir/var/lib/spmk
 # where fake port tree is generated
 mkdir -p $testdir/usr/ports
 
+msg installing spmk
+
 mk 'root='$testdir 'prefix='$testdir/usr \
    'etcdir='$testdir/etc || exit 1
+msg   done
 
-echo 'DONE' >[1=2]
-
+msg generating fake ports
 ./tools/generate-fake-ports $testdir/usr/ports/main $nports
+msg   done
 
-cp ./tools/pub.key $testdir/etc/spmk/pubkeys/
-cp ./tools/priv.key $testdir/etc/spmk/
+privkey=./tools/priv.key
+pubkey=./tools/pub.key
+
+msg installing signing keys
+if (! test -f $privkey)
+  openssl genrsa -out $privkey 2048
+cp $privkey $testdir/etc/spmk/priv.key
+
+if (! test -f $pubkey)
+  openssl rsa -in $privkey -pubout >$pubkey
+cp $pubkey $testdir/etc/spmk/pubkeys/
+msg   done
 
 echo 'usr/bin/pcc' >> $testdir/etc/spmk/exclude
 echo 'usr/share/dev/file' >> $testdir/etc/spmk/save

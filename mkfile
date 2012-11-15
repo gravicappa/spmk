@@ -4,7 +4,7 @@ destdir = ''
 prefix = /usr/local
 bindir = $prefix/sbin
 etcdir = $prefix/etc
-cmddir = $prefix/lib
+libdir = $prefix/lib
 mandir = $prefix/share/man/man1
 
 root = /
@@ -13,22 +13,19 @@ spmk_mk_d = $etcdir/spmk
 pubkeydir = $etcdir/spmk/pubkeys
 spmk_privkey = $etcdir/spmk/priv.key
 tmpdir = `{cleanname $root/tmp/spmk}
-spmk_inc = $cmddir/spmk/inc
+spmk_inc = $libdir/spmk/inc
+
+< config.mk
 
 binfiles = spmk spmk_add spmk_rm
-cmdfiles = mkpkg mkports.awk mkrevdep mkdep.awk
 subrfiles = main vcs
 
 install:V:
-  mkdir -p $destdir/$bindir $destdir/$etcdir/spmk $destdir/$cmddir/spmk
+  mkdir -p $destdir/$bindir $destdir/$etcdir/spmk $destdir/$libdir/spmk
   mkdir -p $destdir/$pubkeydir $destdir/$mandir $destdir/$spmk_inc
   awk '/^(spmk_mk_d|pkgdb|root|spmk_inc|spmk_privkey)=/ {
          sub(/=.*$/, "")
          printf("%s=%s\n", $1, ENVIRON[$1])
-         next
-       }
-       /^spmk_cmddir=/ {
-         printf("spmk_cmddir=%s/spmk\n", ENVIRON["cmddir"])
          next
        }
        {print}' < spmk > $destdir/$bindir/spmk
@@ -49,10 +46,6 @@ install:V:
        }
        {print}' < $f > $destdir/$bindir/$f
       chmod 755 $destdir/$bindir/$f
-  }
-  for (f in $cmdfiles) {
-    cp $f $destdir/$cmddir/spmk/
-    chmod 755 $destdir/$cmddir/spmk/$f
   }
   touch $destdir/$spmk_mk_d/empty.mk
   cp $subrfiles $destdir/$spmk_inc

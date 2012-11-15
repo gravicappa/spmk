@@ -17,7 +17,7 @@ current_version() {
 }
 
 remove_files() {
-  awk <"$1" '{print NR " " $0}' | sort -r -n | sed 's/^[0-9]* //' \
+  awk '{print NR " " $0}' | sort -r -n | sed 's/^[0-9]* //' \
   | while IFS='' read -r f ; do
     if test -f "$save" && echo "$f" | grep -f "$save" >/dev/null; then
       mv "$root/$f" "$root/$f.saved"
@@ -35,10 +35,9 @@ remove() {
   test -d "$pkgdb/$pkg" || die "Cannot find package '$1'."
 
   if test -f "$pkgdb/$pkg/uninstall" ; then
-    sh -c ". '$tmp/+PKG/uninstall'" || die 'Error in uninstall script.'
+    sh -c ". '$pkgdb/$pkg/uninstall'" || die 'Error in uninstall script.'
   fi
-
-  remove_files "$pkgdb/$pkg/files"
+  sed '1,/^files:/d' <"$pkgdb/$pkg/info" | remove_files
   rm -rf "$pkgdb/$pkg"
 }
 

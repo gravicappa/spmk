@@ -1,8 +1,6 @@
 #!/usr/bin/env rc
 
-spmk_cmddir=$HOME/dev/spmk
 spmk_inc=$HOME/dev/spmk/
-spmk_header=$spmk_inc/main
 spmk_mk_d=$HOME/dev/spmk/spmk.d
 spmk_privkey=$HOME/dev/spmk/priv.key
 root=$HOME/dev/spmk/root
@@ -12,6 +10,48 @@ buildroot=$root/tmp/build
 pkgfmt='$target-$arch.pkg.tar.gz'
 test -n $"arch || arch=`{uname -m}
 
+fn mkports {
+  for (f in $ports/*/spmk_*) test -x $f && $f
+  awk '
+    BEGIN {print "MKSHELL=rc"}
+    /^[ \t]*\.[ \t]*\$spmk_inc/ {print "  portfile='" FILENAME "'"}
+    {print}
+    END {print "<|cat $spmk_mk_d/*.mk"}' $ports/*/*/build.mk $*
+}
+
+fn mkrevdep {
+  echo 'MKSHELL=rc'
+  @{
+    cd $pkgdb
+    for (f in *-[0-9]*/)
+      if (test -d $f) {
+        printf '%s:VQ: %s\n\n' `{echo $f | sed 's/-[0-9].*$//'} $f
+        {
+          echo $f:VQ:
+          test -f $f/required_by && cat $f/required_by
+        } | xargs
+        printf '  %s %s\n\n' $1 $f
+      }
+  }
+}
+
+fn mkdep {
+  awk '
+    BEGIN {print "MKSHELL=rc"}
+    /^[^ \t].*:/ {
+      rule = 1
+      sub(/:[A-Z]+:/, ":")
+      sub(/:/, ":VQ:")
+      print
+      next
+    }
+    /^[ \t]*[^ \t]/ && rule {
+      printf("  echo $target\n\n")
+      rule = 0
+    }
+    /^[^ \t]/ {print}' $ports/*/*/build.mk
+}
+
 cmd=$1
 if (~ $cmd -*)
   shift
@@ -20,27 +60,26 @@ switch ($cmd) {
     test -f build.mk || {echo 'no build.mk' >[1=2]; exit 1}
     dir=`{pwd}
     cd $pkgdb
-    exec mk -f \
-      <{awk -f $spmk_cmddir/mkports.awk $"dir/build.mk $ports/*/*/build.mk}
+    exec mk -f <{mkports $"dir/build.mk}
 
   case -b
     cd $pkgdb
-    exec mk -f <{awk -f $spmk_cmddir/mkports.awk $ports/*/*/build.mk} $*
+    exec mk -f <{mkports} $*
 
   case -a
     spmk_add $*
 
   case -r
-    exec mk -f <{$spmk_cmddir/mkrevdep spmk_rm} $*
+    exec mk -f <{mkrevdep spmk_rm} $*
 
   case -d
-    exec mk -f <{awk -f $spmk_cmddir/mkdep.awk $ports/*/*/build.mk} $*
+    exec mk -f <{mkdep} $*
 
   case -rd
-    exec mk -f <{$spmk_cmddir/mkrevdep echo} $*
+    exec mk -f <{mkrevdep echo} $*
 
   case -u
-    echo 'TODO: update system' >[1=2]
+    echo 'TODO: update whole system' >[1=2]
     exit 1
 
   case *

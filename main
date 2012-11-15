@@ -9,12 +9,6 @@ fn die {
   exit 1
 }
 
-fn download {
-  file=$2
-  test -z $file && file=`{basename $1}
-  test -f $file || wget $1 -O $file
-}
-
 fn verifysrc {
   file=$1
   sum=$2
@@ -33,8 +27,8 @@ fn install_reason {
 fn sigexit {
   s=$status
   if (~ $s '') {
-    eval 'f=`{echo' $"pkgfmt '}'
-    $spmk_cmddir/mkpkg $pkgdir $"prereq $install $pkgdest/$"f
+    pkgfile=$pkgdest/$target-$arch.pkg.tar.gz
+    spmk_pkg $pkgdir $pkgfile $prereq $install
     if (test -f $spmk_privkey)
       openssl dgst -sha1 -sign $spmk_privkey <$pkgdest/$"f >$pkgdest/$"f.sig
     if not

@@ -40,8 +40,8 @@ current_version() {
 }
 
 remove_files() {
-  awk <"$1" '{print NR " " $0}' | sort -r -n | sed 's/^[0-9]* //' \
-  | while IFS='' read -r f ; do
+  awk '{print NR " " $0}' | sort -r -n | sed 's/^[0-9]* //' \
+  | while IFS='' read -r f; do
     if test -f "$root/$f"; then
       rm -f "$root/$f"
     elif test -d "$root/$f"; then
@@ -76,8 +76,8 @@ add() {
   cur="$(current_version "$pkgname")"
 
   if test -n "$cur" && test -e "$pkgdb/$cur"; then
-    test -f "$pkgdb/$pkg/uninstall" && sh -c ". '$pkgdb/$pkg/uninstall'"
-    remove_files "$pkgdb/$cur/files"
+    test -f "$pkgdb/$cur/uninstall" && sh -c ". '$pkgdb/$cur/uninstall'"
+    sed '1,/^files:/d' <"$pkgdb/$cur/info" | remove_files
     rm -rf "$pkgdb/$cur"
   fi
 
@@ -96,20 +96,21 @@ add() {
   fi
 
   if ! gunzip <"$pkgfile" | (cd "$root" && tar -x -f - -X "$excl") ; then
-    remove_files "$tmp/files"
+    remove_files <"$tmp/files"
     die "Couldn't unpack contents of '$pkgfile'"
   fi
 
   if test -z "$spmk_no_instscript" && test -f "$tmp/+PKG/install" ; then
     sh -c ". '$tmp/+PKG/install'" || {
-      remove_files "$tmp/files"
+      remove_files <"$tmp/files"
       die 'Error in install script.'
     }
   fi
 
   mkdir -p "$pkgdb/$pkg"
   echo "reason: $reason" >>"$tmp/+PKG/info"
-  gunzip <"$pkgfile" | tar -t -f - | grep -v '^+PKG' >"$pkgdb/$pkg/files"
+  echo "files:" >>"$tmp/+PKG/info"
+  gunzip <"$pkgfile" | tar -t -f - | grep -v '^+PKG' >>"$pkgdb/$pkg/info"
   cp "$tmp/+PKG"/* "$pkgdb/$pkg"
   rm -rf "$excl" "$tmp"
 }

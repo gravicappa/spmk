@@ -1,0 +1,18 @@
+#!/usr/bin/env rc
+
+pkgdir=$1
+pkgfile=$2
+pkgdep=$3
+pkginst=$4
+
+mkdir $pkgdir/install
+{
+  echo '#!/bin/sh'
+  cat $pkginst
+} >$pkgdir/install/doinst.sh
+{
+	for (dep in $pkgdep)
+		echo $dep
+} >$pkgdir/install/slack-required
+
+@{cd $pkgdir && makepkg -l -c $pkgfile}
