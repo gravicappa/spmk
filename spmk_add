@@ -110,7 +110,7 @@ add() {
   mkdir -p "$pkgdb/$pkg"
   echo "reason: $reason" >>"$tmp/+PKG/info"
   echo "files:" >>"$tmp/+PKG/info"
-  gunzip <"$pkgfile" | tar -t -f - | grep -v '^+PKG' >>"$pkgdb/$pkg/info"
+  gunzip <"$pkgfile" | tar -t -f - | grep -v '^+PKG' >>"$tmp/+PKG/info"
   cp "$tmp/+PKG"/* "$pkgdb/$pkg"
   rm -rf "$excl" "$tmp"
 }
