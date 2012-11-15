@@ -13,7 +13,7 @@ spmk_mk_d = $etcdir/spmk
 pubkeydir = $etcdir/spmk/pubkeys
 spmk_privkey = $etcdir/spmk/priv.key
 tmpdir = `{cleanname $root/tmp/spmk}
-spmk_inc = $libdir/spmk/inc
+spmk_inc = $libdir/spmk
 
 < config.mk
 
