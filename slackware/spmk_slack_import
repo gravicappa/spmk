@@ -1,13 +1,20 @@
 #!/usr/bin/env rc
 
-for (file in /var/log/packages/*)
-  awk -v 'file='$file -v 'pkgname='`{basename $file} 'BEGIN {
-    name = pkgname
-    sub(/-[0-9].*$/, "", name)
-    tail = pkgname
-    sub("^" name "-", "", tail)
-    n = split(tail, x, "-")
-    ver = x[1]
-    pkgver = x[n]
-    printf "%s-%s-%s: %s\n\n", name, ver, pkgver, file
-  }'
+cachefile=$ports/slackware/2-packages/build.mk
+
+if (! test -e $cachefile -a $cachefile -nt /var/log/packages) {
+  {
+    for (file in /var/log/packages/*)
+      awk -v 'file='$file -v 'pkgname='`{basename $file} 'BEGIN {
+        name = pkgname
+        sub(/-[0-9].*$/, "", name)
+        tail = pkgname
+        sub("^" name "-", "", tail)
+        n = split(tail, x, "-")
+        ver = x[1]
+        pkgver = x[n]
+        printf "%s:V: %s\n", name, file
+        printf "%s-%s-%s:V: %s\n\n", name, ver, pkgver, file
+      }'
+  } >$cachefile
+}
