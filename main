@@ -10,18 +10,9 @@ fn die {
 }
 
 fn verifysrc {
-  file=$1
-  sum=$2
-  realsum=`{sha1sum $file | awk '{print $1}'}
-  if (! ~ $sum $realsum)
-    die $file wrong checksum
-}
-
-fn install_reason {
-  if (echo ' '^$"MKARGS^' ' | grep -v ' '^$name^' ' >/dev/null)
-    echo as_dependency
-  if not
-    echo explicitely
+  realsum=`{sha1sum $1 | awk '{print $1}'}
+  if (! ~ $2 $realsum)
+    die $1 wrong checksum
 }
 
 fn sigexit {
@@ -54,9 +45,10 @@ for (s in $arch any)
 name=`{echo $target | sed 's/-[0-9].*$//'}
 version=`{echo $target | sed s/$name-//}
 install=''
-
-reason=`{install_reason}
-if (test -z $"REASON)
+reason=explicitely
+if (~ ' '^$"MKARGS^' ' *' '^$name^' '*)
+  reason=as_dependency
+if (test -n $"REASON)
   reason=$REASON
 
 rm -rf $pkgroot

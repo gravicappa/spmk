@@ -1,0 +1,23 @@
+.Dd July 15, 2012
+.Dt SPMK_RM 1 1
+.Os
+.Sh NAME
+
+.Nm spmk_rm
+.Nd removes package
+
+.Sh SYNOPSIS
+.Nm
+.Ar package
+.Bk -words
+.Op Ar packages ...
+.Ek
+
+.Sh DESCRIPTION
+.Nm
+removes given packages. If a package has
+.Pa uninstall
+script then
+.Nm
+executes it before removing the package's files.
+.El

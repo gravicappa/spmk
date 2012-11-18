@@ -21,24 +21,28 @@
 installs package performing following steps:
 .Bl -enum
 .It
-For package tarball
-.Pa $pkg.tar.gz .
-Verifies package with signature
-.Pa $pkg.tar.gz.sig
-using keys in
+Verifies package
+.Pa pkg.tar.gz
+with signature
+.Pa pkg.tar.gz.sig
+using one of the keys in
 .Pa /etc/spmk/pubkeys
-directory.
+directory unless called with
+.Ar -n .
 .It
 If package with the same name is installed removes that package.
 .It
-Checks if installing package would overwrite existing files (stops with error
-by default).
+Checks if installing package would overwrite existing files (stops with error unless called with
+.Ar -f ) .
+
 .It
 Unpacks package files.
 .It
 Runs package's
 .Pa install
-script if exists.
+script if it exists and if environment variable
+.Ev spmk_no_instscript
+is unset or empty.
 .El
 
 Options:

@@ -8,15 +8,15 @@ pkgdb=$root/var/lib/spmk
 ports=$root/usr/ports
 buildroot=$root/tmp/build
 pkgfmt='$target-$arch.pkg.tar.gz'
+sudo=sudo
 test -n $"arch || arch=`{uname -m}
 
 fn mkports {
   for (f in $ports/*/spmk_*) test -x $f && $f
-  awk '
-    BEGIN {print "MKSHELL=rc"}
-    /^[ \t]*\.[ \t]*\$spmk_inc/ {print "  portfile=''" FILENAME "''"}
-    {print}
-    END {print "<|cat $spmk_mk_d/*.mk"}' $ports/*/*/build.mk $*
+  awk 'BEGIN {print "MKSHELL=rc"}
+       /^[ \t]*\.[ \t]*\$spmk_inc/ {print "  portfile=''" FILENAME "''"}
+       {print}
+       END {print "<|cat $spmk_mk_d/*.mk"}' $ports/*/*/build.mk $*
 }
 
 fn mkrevdep {
@@ -26,30 +26,27 @@ fn mkrevdep {
     for (f in *-[0-9]*/)
       if (test -d $f) {
         printf '%s:VQ: %s\n\n' `{echo $f | sed 's/-[0-9].*$//'} $f
-        {
-          echo $f:VQ:
-          test -f $f/required_by && cat $f/required_by
-        } | xargs
+        printf '%s:VQ:' $f
+        test -f $f/required_by && cat $f/required_by | xargs
         printf '  %s %s\n\n' $1 $f
       }
   }
 }
 
 fn mkdep {
-  awk '
-    BEGIN {print "MKSHELL=rc"}
-    /^[^ \t].*:/ {
-      rule = 1
-      sub(/:[A-Z]+:/, ":")
-      sub(/:/, ":VQ:")
-      print
-      next
-    }
-    /^[ \t]*[^ \t]/ && rule {
-      printf("  echo $target\n\n")
-      rule = 0
-    }
-    /^[^ \t]/ {print}' $ports/*/*/build.mk
+  awk 'BEGIN {print "MKSHELL=rc"}
+       /^[^ \t].*:/ {
+         rule = 1
+         sub(/:[A-Z]+:/, ":")
+         sub(/:/, ":VQ:")
+         print
+         next
+       }
+       /^[ \t]*[^ \t]/ && rule {
+         printf("  echo $target\n\n")
+         rule = 0
+       }
+       /^[^ \t]/ {print}' $ports/*/*/build.mk
 }
 
 cmd=$1
