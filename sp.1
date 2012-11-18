@@ -1,0 +1,88 @@
+.Dd July 15, 2012
+.Dt SPMK_ADD 1 1
+.Os
+.Sh NAME
+
+.Nm sp
+.Nd simple package manager utility
+
+.Sh SYNOPSIS
+.Nm
+.Op Fl a
+.Op Fl r
+.Op Fl f
+.Op Fl n
+.Op Fl e
+.Ar package
+.Bk -words
+.Op Ar packages ...
+.Ek
+
+.Sh DESCRIPTION
+.Nm
+can install or remove packages. Its operation are controlled by arguments
+.Ar -a
+— for installing and
+.Ar -r
+— for removing. Default is installing.
+
+Options:
+.Bl -tag
+.It Ar -a
+Install packages.
+.It Ar -r
+Remove packages.
+.It Ar -f
+Force overwriting of already existing files.
+.It Ar -n
+Don't verify package signature.
+.It Ar -e
+Mark package as installed
+.Ql as a dependency
+(used by spmk).
+.El
+
+.Sh OPERATION
+Installation steps:
+.Bl -enum
+.It
+Verifies package
+.Pa pkg.tar.gz
+with signature
+.Pa pkg.tar.gz.sig
+using one of the keys in
+.Pa /etc/spmk/pubkeys
+directory unless called with
+.Ar -n .
+.It
+If package with the same name is installed removes that package as
+.Ql sp -r ... .
+.It
+Checks if installing package would overwrite existing files (stops with error
+unless called with
+.Ar -f ) .
+.It
+Unpacks package files.
+.It
+Runs package's
+.Pa install
+script if it exists and if environment variable
+.Ev spmk_no_script
+is unset or empty.
+.It
+Saves package's information.
+.El
+
+Removing steps:
+.Bl -enum
+.It
+Runs package's
+.Pa uninstall
+script if it exists and if environment variable
+.Ev spmk_no_script
+is unset or empty.
+.It
+Removes package's files.
+.It
+Removes package's information.
+.El

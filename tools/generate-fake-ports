@@ -64,7 +64,7 @@ fn mkport {
     echo '  touch $pkgdir/usr/bin/$name'
     echo '  sleep 1'
     echo
-		#echo '< '^$ports_root^'/spmk.mk'
+    #echo '< '^$ports_root^'/spmk.mk'
   } > $dir/$port_name/$port_mkfile
   deps=($deps $1)
 }

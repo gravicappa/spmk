@@ -63,9 +63,6 @@ switch ($cmd) {
     cd $pkgdb
     exec mk -f <{mkports} $*
 
-  case -a
-    spmk_add $*
-
   case -r
     exec mk -f <{mkrevdep spmk_rm} $*
 
@@ -80,12 +77,6 @@ switch ($cmd) {
     exit 1
 
   case *
-    for (f in $*) {
-      if (~ $f *.tar.gz && test -f $f)
-        spmk_add $f
-      if not {
-        echo 'Usage: spmk [-b|-a|-r|-d|-rd|-u] packages...'
-        exit 1
-      }
-    }
+    echo 'Usage: spmk [-b|-a|-r|-d|-rd|-u] packages...'
+    exit 1
 }

@@ -1,9 +1,13 @@
 #!/usr/bin/env rc
 
-cachefile=$ports/slackware/2-packages/build.mk
+arch_list=(noarch i686 i486 i386 i586)
+cachefile=$ports/slackware/slackware/build.mk
 
 if (! test -e $cachefile -a $cachefile -nt /var/log/packages) {
   {
+		for (a in $arch_list)
+			echo %-$a: %
+		echo
     for (file in /var/log/packages/*)
       awk -v 'file='$file -v 'pkgname='`{basename $file} 'BEGIN {
         name = pkgname

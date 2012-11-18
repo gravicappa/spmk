@@ -1,0 +1,11 @@
+#!/bin/sh
+cmd=installpkg
+while test $# -gt 0; do
+  case "$1" in
+	-[ai]) cmd=installpkg; shift;;
+	-[rd]) cmd=removepkg; shift;;
+	-*) shift;;
+	*) break;;
+	esac
+done
+exec $cmd "$@"

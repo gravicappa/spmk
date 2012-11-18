@@ -15,9 +15,8 @@ spmk_privkey = $etcdir/spmk/priv.key
 tmpdir = `{cleanname $root/tmp/spmk}
 spmk_inc = $libdir/spmk
 
-< config.mk
+<config.mk
 
-binfiles = spmk spmk_add spmk_rm spmk_pkg
 subrfiles = main vcs
 
 install:V:
@@ -29,7 +28,7 @@ install:V:
              }
              {print}' <spmk >$destdir/$bindir/spmk
   chmod 755 $destdir/$bindir/spmk
-  for (f in spmk_add spmk_rm spmk_pkg) {
+  for (f in spmk_pkg sp) {
     awk -F'=' '/^(pkgdb|root|tmpdir|pubkeydir|spmk_privkey)=/ {
                  printf("%s=%s\n", $1, ENVIRON[$1])
                  next
