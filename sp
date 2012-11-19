@@ -71,7 +71,7 @@ add() {
   gunzip <"$pkgfile" | tar -t -f - -X "$excl" | grep -v '^+PKG' \
   >$tmp/files || die "Broken package."
 
-  remove "$pkgname"
+  remove "$pkgname" :
 
   if test -z "$force"; then
     while IFS='' read -r f ; do
@@ -111,13 +111,15 @@ add() {
 remove() {
   pkg="$1"
   test -d "$pkgdb/$pkg" || pkg="$(current_version "$1")"
-  test -d "$pkgdb/$pkg" || die "Cannot find package '$1'."
-
-  if test -z "$sp_no_script" && test -f "$pkgdb/$pkg/uninstall" ; then
-    sh -c ". '$pkgdb/$pkg/uninstall'" || die 'Error in uninstall script.'
+  if test -d "$pkgdb/$pkg"; then
+    if test -z "$sp_no_script" && test -f "$pkgdb/$pkg/uninstall" ; then
+      sh -c ". '$pkgdb/$pkg/uninstall'" || die 'Error in uninstall script.'
+    fi
+    sed '1,/^files:/d' <"$pkgdb/$pkg/info" | remove_files
+    rm -rf "$pkgdb/$pkg"
+  else
+    ${2:-die} "Cannot find package '$1'."
   fi
-  sed '1,/^files:/d' <"$pkgdb/$pkg/info" | remove_files
-  rm -rf "$pkgdb/$pkg"
 }
 
 cmd='add'
