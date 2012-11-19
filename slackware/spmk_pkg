@@ -11,8 +11,8 @@ mkdir $pkgdir/install
   cat $pkginst
 } >$pkgdir/install/doinst.sh
 {
-	for (dep in $pkgdep)
-		echo $dep
+  for (dep in $pkgdep)
+    echo $dep
 } >$pkgdir/install/slack-required
 
 @{cd $pkgdir && makepkg -l -c $pkgfile}
