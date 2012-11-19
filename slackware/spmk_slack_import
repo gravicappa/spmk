@@ -4,7 +4,11 @@ arch_list=(noarch i686 i486 i386 i586)
 cachefile=$ports/slackware/slackware/build.mk
 
 if (! test -e $cachefile -a $cachefile -nt /var/log/packages) {
+  mkdir -p `{dirname $cachefile}
   {
+    echo %: /var/log/packages/%
+    echo '  . $spmk_inc/empty'
+    echo
     for (a in $arch_list)
       echo %-$a: %
     echo
@@ -18,7 +22,7 @@ if (! test -e $cachefile -a $cachefile -nt /var/log/packages) {
         ver = x[1]
         pkgver = x[n]
         printf "%s:V: %s\n", name, pkgname
-        printf "%s-%s-%s:V: %s\n\n", name, ver, pkgver, pkgname
+        printf "%s-%s-%s:V: %s\n", name, ver, pkgver, pkgname
       }'
   } >$cachefile
 }
