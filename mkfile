@@ -19,31 +19,51 @@ spmk_inc = $libdir/spmk
 
 subrfiles = main vcs
 
-install:V:
+install_dirs:V:
   mkdir -p $destdir/$bindir $destdir/$etcdir/spmk $destdir/$libdir/spmk
   mkdir -p $destdir/$pubkeydir $destdir/$mandir $destdir/$spmk_inc
+
+install_sp_sh:V:
+  awk -F'=' '
+    /^root=/ {
+      printf("%s=\"${SPMK_ROOT:-%s}\"\n", $1, ENVIRON[$1])
+      next
+    }
+    /^pkgdb=/ {
+      printf("%s=\"${SPMK_DB:-%s}\"\n", $1, ENVIRON[$1])
+      next
+    }
+    /^(tmpdir|pubkeydir|spmk_privkey)=/ {
+      s = sprintf("%s=\"$root/%s\"", $1, ENVIRON[$1])
+      gsub(/\/\/*/, "/", s)
+      print s
+      next
+    }
+    /^save=/ {
+      s = sprintf("save=\"$root/%s/spmk/save\"", ENVIRON["etcdir"])
+      gsub(/\/\/*/, "/", s)
+      print s
+      next
+    }
+    /^exclude=/ {
+      s = sprintf("exclude=\"$root/%s/spmk/exclude\"", ENVIRON["etcdir"])
+      gsub(/\/\/*/, "/", s)
+      print s
+      next
+    }
+    {print}' <sp >$destdir/$bindir/sp
+
+
+install:V: install_dirs install_sp_sh
   awk -F'=' '/^(spmk_mk_d|pkgdb|root|spmk_inc|spmk_privkey)=/ {
-               printf("%s=%s\n", $1, ENVIRON[$1])
+               printf("%s=''%s''\n", $1, ENVIRON[$1])
                next
              }
              {print}' <spmk >$destdir/$bindir/spmk
   chmod 755 $destdir/$bindir/spmk
-  for (f in spmk_pkg sp) {
-    awk -F'=' '/^(pkgdb|root|tmpdir|pubkeydir|spmk_privkey)=/ {
-                 printf("%s=%s\n", $1, ENVIRON[$1])
-                 next
-               }
-               /^save=/ {
-                 printf("save=\"%s/spmk/save\"\n", ENVIRON["etcdir"])
-                 next
-               }
-               /^exclude=/ {
-                 printf("exclude=\"%s/spmk/exclude\"\n", ENVIRON["etcdir"])
-                 next
-               }
-               {print}' <$f >$destdir/$bindir/$f
-      chmod 755 $destdir/$bindir/$f
-  }
+  cp spmk_pkg $destdir/$bindir/
+  for (f in sp spmk_pkg spmk)
+    chmod 755 $destdir/$bindir/$f
   touch $destdir/$spmk_mk_d/empty.mk
   cp $subrfiles $destdir/$spmk_inc
   cp spmk.1 $destdir/$mandir
