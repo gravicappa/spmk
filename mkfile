@@ -19,6 +19,8 @@ spmk_inc = $libdir/spmk
 
 subrfiles = main vcs
 
+all:V: install
+
 install_dirs:V:
   mkdir -p $destdir/$bindir $destdir/$etcdir/spmk $destdir/$libdir/spmk
   mkdir -p $destdir/$pubkeydir $destdir/$mandir $destdir/$spmk_inc

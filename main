@@ -30,6 +30,12 @@ fn sigexit {
   exit $s
 }
 
+switch ($pkgmode) {
+  case dep
+    echo $target
+    exit 0
+}
+
 portdir=`{dirname $portfile}
 pkgroot=$buildroot/$target
 pkgdir=$pkgroot/pkg
@@ -45,7 +51,7 @@ for (s in $arch any)
 name=`{echo $target | sed 's/-[0-9].*$//'}
 version=`{echo $target | sed s/$name-//}
 install=''
-if (~ ' '^$"MKARGS^' ' *' '^$name^' '*)
+if (! ~ ' '^$"MKARGS^' ' *' '^$name^' '*)
   reason=dependency
 if (test -n $"REASON)
   reason=$REASON
