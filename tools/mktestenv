@@ -28,7 +28,7 @@ fn mkfakeroot {
   mkdir -p $testdir/usr/ports
 
   msg generating fake ports
-  ./tools/generate-fake-ports $testdir/usr/ports/main $nports
+  ./tools/genfakeports $testdir/usr/ports/main $nports
   msg   done
 
   privkey=./tools/priv.key

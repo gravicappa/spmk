@@ -18,7 +18,7 @@ fn rnd {
 }
 
 fn rnd_word {
-  awk -v 'n='`{rnd $nlines} 'NR==n {print $0; exit}' < $words \
+  awk -v 'n='`{rnd $nlines} 'NR==n {print $0; exit}' <$words \
   | tr A-Z a-z | sed 's/''s$//;s/''//g'
 }
 
@@ -44,7 +44,7 @@ fn mkport {
     echo $port_name^:V: $port_name^'-'^$ver
     echo
     echo $port_name^'-'^$ver:Q: $deps
-    echo '  . $spmk_inc/main'
+    echo '  __PACKAGE__'
     echo '  . $spmk_inc/vcs'
     echo '  msg download'
     echo '  #test -f $port_name.tar.gz \'

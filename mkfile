@@ -17,7 +17,7 @@ spmk_inc = $libdir/spmk
 
 <config.mk
 
-subrfiles = main vcs
+subrfiles = vcs
 
 all:V: install
 
@@ -36,19 +36,19 @@ install_sp_sh:V:
       next
     }
     /^(tmpdir|pubkeydir|spmk_privkey)=/ {
-      s = sprintf("%s=\"$root/%s\"", $1, ENVIRON[$1])
+      s = sprintf("%s=\"%s\"", $1, ENVIRON[$1])
       gsub(/\/\/*/, "/", s)
       print s
       next
     }
     /^save=/ {
-      s = sprintf("save=\"$root/%s/spmk/save\"", ENVIRON["etcdir"])
+      s = sprintf("save=\"%s/spmk/save\"", ENVIRON["etcdir"])
       gsub(/\/\/*/, "/", s)
       print s
       next
     }
     /^exclude=/ {
-      s = sprintf("exclude=\"$root/%s/spmk/exclude\"", ENVIRON["etcdir"])
+      s = sprintf("exclude=\"%s/spmk/exclude\"", ENVIRON["etcdir"])
       gsub(/\/\/*/, "/", s)
       print s
       next

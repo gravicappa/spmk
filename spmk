@@ -11,42 +11,92 @@ pkgfmt='$target-$arch.pkg.tar.gz'
 sudo=sudo
 test -n $"arch || arch=`{uname -m}
 
+fn die {
+  echo $* >[1=2]
+  exit 1
+}
+
+fn msg {
+  echo '#' $target: $* >[1=2]
+}
+
+fn verifysrc {
+  if (! ~ $2 `{sha1sum $1 | awk '{print $1}'})
+    die Wrong checksum for $1
+}
+
+fn pkgend {
+  s=$status
+  if (~ $s '') {
+    eval 'f=`{echo' $"pkgfmt '}'
+    spmk_pkg $pkgdir $"prereq $install $pkgdest/$"f
+    if (test -f $spmk_privkey)
+      openssl dgst -sha1 -sign $spmk_privkey <$pkgdest/$"f >$pkgdest/$"f.sig
+    if not
+      msg Warning: cannot sign package $pkgdest/$"f
+    $sudo sp -a $pkgdest/$"f
+    rm -rf $pkgroot
+  }
+  exit $s
+}
+
+fn __PACKAGE__ {
+  switch ($"pkgmode) {
+    case dep
+      echo $target
+      exit 0
+  }
+  test -e $target && exit 0
+  portdir=`{dirname $portfile}
+  pkgroot=$buildroot/$target
+  pkgdir=$pkgroot/pkg
+  pkgdest=$ports
+
+  for (s in $arch any)
+    ifs='' f='' {
+      arch=$s eval 'f=`{echo' $"pkgfmt '}'
+      if (test -f $pkgdest/$"f)
+        $sudo sp -a $pkgdest/$"f && exit 0
+    }
+  name=`{echo $target | sed 's/-[0-9].*$//'}
+  version=`{echo $target | sed s/$name-//}
+  install=''
+  if (! ~ ' '^$"MKARGS^' ' *' '^$name^' '*)
+    reason=dependency
+  if (test -n $"REASON)
+    reason=$REASON
+
+  rm -rf $pkgroot
+  mkdir -p $pkgroot $pkgdir
+  cd $pkgroot
+
+  fn sigexit {pkgend}
+}
+
 fn mkports {
   for (f in $ports/*/spmk_*) test -x $f && $f
   awk 'BEGIN {print "MKSHELL=rc"}
-       /^[ \t]*\.[ \t]*\$spmk_inc/ {print "  portfile=''" FILENAME "''"}
+       /^[ \t]*__PACKAGE__[ \t]*$/ {print "  portfile=''" FILENAME "''"}
        {print}
        END {print "<|cat $spmk_mk_d/*.mk"}' $ports/*/*/build.mk $*
 }
 
 fn mkrevdep {
-  echo 'MKSHELL=rc'
-  @{
-    cd $pkgdb
-    for (f in *-[0-9]*/)
-      if (test -d $f) {
-        printf '%s:VQ: %s\n\n' `{echo $f | sed 's/-[0-9].*$//'} $f
-        printf '%s:VQ:' $f
-        test -f $f/required_by && cat $f/required_by | xargs
-        printf '  %s %s\n\n' $1 $f
-      }
-  }
+  for (f in $ports/*/spmk_*) test -x $f && $f
+  awk -F: 'BEGIN {printf "MKSHELL=rc\n%:Q:\n  echo $target\n\n"}
+           /^[^ \t][^''=%:]*:/ {
+             sub(/:[A-Z]+:/, ":")
+             sub(/^[ \t]*/, "", $2)
+             if (length($2) > 0)
+               print $2 ":VQ: " $1
+           }' $ports/*/*/build.mk
 }
 
 fn mkdep {
-  awk 'BEGIN {print "MKSHELL=rc"}
-       /^[^ \t].*:/ {
-         rule = 1
-         sub(/:[A-Z]+:/, ":")
-         sub(/:/, ":VQ:")
-         print
-         next
-       }
-       /^[ \t]*[^ \t]/ && rule {
-         printf("  echo $target\n\n")
-         rule = 0
-       }
-       /^[^ \t]/ {print}' $ports/*/*/build.mk
+  for (f in $ports/*/spmk_*) test -x $f && $f
+  awk 'BEGIN {printf "MKSHELL=rc\npkgmode=dep\n"}
+       /^[^ \t][^''=:%]*:/ {sub(/:[A-Z]*:*/, ":VQ:")}
+       {print}' $ports/*/*/build.mk
 }
 
 cmd=$1
@@ -54,7 +104,7 @@ if (~ $cmd -*)
   shift
 switch ($cmd) {
   case ''
-    test -f build.mk || {echo 'no build.mk' >[1=2]; exit 1}
+    test -f build.mk || die 'no build.mk'
     dir=`{pwd}
     cd $pkgdb
     exec mk -f <{mkports $"dir/build.mk}
@@ -64,17 +114,16 @@ switch ($cmd) {
     exec mk -f <{mkports} $*
 
   case -r
-    exec mk -f <{mkrevdep spmk_rm} $*
+    exec sp -r <{mk -f <{mkrevdep} $* | grep -v '[-][0-9]'}
 
   case -d
     exec mk -f <{mkdep} $*
 
   case -rd
-    exec mk -f <{mkrevdep echo} $*
+    mk -f <{mkrevdep} $* | grep -v '[-][0-9]'
 
   case -u
-    echo 'TODO: update whole system' >[1=2]
-    exit 1
+    die 'TODO: update whole system'
 
   case *
     echo 'Usage: spmk [-b|-a|-r|-d|-rd|-u] packages...'
