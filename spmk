@@ -29,7 +29,7 @@ fn pkgend {
   s=$status
   if (~ $s '') {
     eval 'f=`{echo' $"pkgfmt '}'
-    spmk_pkg $pkgdir $"prereq $install $pkgdest/$"f
+    spmk_pkg $pkgdir $"prereq $pkgdest/$"f
     if (test -f $spmk_privkey)
       openssl dgst -sha1 -sign $spmk_privkey <$pkgdest/$"f >$pkgdest/$"f.sig
     if not
@@ -51,7 +51,6 @@ fn __PACKAGE__ {
   pkgroot=$buildroot/$target
   pkgdir=$pkgroot/pkg
   pkgdest=$ports
-
   for (s in $arch any)
     ifs='' f='' {
       arch=$s eval 'f=`{echo' $"pkgfmt '}'
@@ -60,7 +59,6 @@ fn __PACKAGE__ {
     }
   name=`{echo $target | sed 's/-[0-9].*$//'}
   version=`{echo $target | sed s/$name-//}
-  install=''
   if (! ~ ' '^$"MKARGS^' ' *' '^$name^' '*)
     reason=dependency
   if (test -n $"REASON)

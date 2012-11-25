@@ -2,8 +2,7 @@
 
 pkgdir=$1
 pkgdep=$2
-pkginst=$3
-pkgfile=$4
+pkgfile=$3
 
 rm -rf $pkgdir/+PKG
 mkdir -p $pkgdir/+PKG
@@ -14,6 +13,8 @@ mkdir -p $pkgdir/+PKG
   echo size: `{du -s $pkgdir | awk '{print $1}'}
 } >$pkgdir/+PKG/info
 
-test -n $"pkginst && test -f $"pkginst && cp $pkginst $pkgdir/+PKG/install
+for (f in install.sh install.rc uninstall.sh uninstall.rc)
+  if (test -f $pkgdir/$f)
+    mv $pkgdir/$f $pkgdir/+PKG/
 
 @{cd $pkgdir && fakeroot -- tar -c *} | gzip >$pkgfile

@@ -11,8 +11,19 @@ fn msg {
 fn install_spmk {
   msg installing spmk
 
-  mk 'root='$testdir 'prefix='$testdir/usr 'etcdir='$testdir/etc install \
-  || exit 1
+  opts=('root='$testdir 'prefix='$testdir/usr 'etcdir='$testdir/etc)
+  for (imp in sh rc) {
+    mk $opts 'spimp='$imp install || exit 1
+    mv $testdir/usr/sbin/sp $testdir/usr/sbin/sp.$imp
+  }
+  ln -s sp.rc $testdir/usr/sbin/sp
+  {
+    echo '/^sudo=/c'
+    echo 'sudo=()'
+    echo .
+    echo w
+    echo q
+  } | ed $testdir/usr/sbin/spmk
   msg   done
 }
 

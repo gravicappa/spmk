@@ -6,6 +6,7 @@ bindir = $prefix/sbin
 etcdir = $prefix/etc
 libdir = $prefix/lib
 mandir = $prefix/share/man/man1
+spimp = sh
 
 root = /
 pkgdb = `{cleanname $root/var/lib/spmk}
@@ -27,14 +28,8 @@ install_dirs:V:
 
 install_sp_sh:V:
   awk -F'=' '
-    /^root=/ {
-      printf("%s=\"${SPMK_ROOT:-%s}\"\n", $1, ENVIRON[$1])
-      next
-    }
-    /^pkgdb=/ {
-      printf("%s=\"${SPMK_DB:-%s}\"\n", $1, ENVIRON[$1])
-      next
-    }
+    /^root=/ {printf("%s=\"${SPMK_ROOT:-%s}\"\n", $1, ENVIRON[$1]); next}
+    /^pkgdb=/ {printf("%s=\"${SPMK_DB:-%s}\"\n", $1, ENVIRON[$1]); next}
     /^(tmpdir|pubkeydir|spmk_privkey)=/ {
       s = sprintf("%s=\"%s\"", $1, ENVIRON[$1])
       gsub(/\/\/*/, "/", s)
@@ -53,10 +48,31 @@ install_sp_sh:V:
       print s
       next
     }
-    {print}' <sp >$destdir/$bindir/sp
+    {print}' <sp.sh >$destdir/$bindir/sp
 
+install_sp_rc:V:
+  awk -F'=' '
+    /^(root|pkgdb|tmpdir|pubkeydir|spmk_privkey)=/ {
+      s = sprintf("%s=''%s''", $1, ENVIRON[$1])
+      gsub(/\/\/*/, "/", s)
+      print s
+      next
+    }
+    /^save=/ {
+      s = sprintf("save=''%s/spmk/save''", ENVIRON["etcdir"])
+      gsub(/\/\/*/, "/", s)
+      print s
+      next
+    }
+    /^exclude=/ {
+      s = sprintf("exclude=''%s/spmk/exclude''", ENVIRON["etcdir"])
+      gsub(/\/\/*/, "/", s)
+      print s
+      next
+    }
+    {print}' <sp.rc >$destdir/$bindir/sp
 
-install:V: install_dirs install_sp_sh
+install:V: install_dirs install_sp_$spimp
   awk -F'=' '/^(spmk_mk_d|pkgdb|root|spmk_inc|spmk_privkey)=/ {
                printf("%s=''%s''\n", $1, ENVIRON[$1])
                next

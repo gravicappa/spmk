@@ -8,8 +8,7 @@ Features:
   * package signing (currently uses openssl, polarssl is planned).
 
 Ports part implemented in 9base tools (rc, mk). Package management (sp)
-currently implemented in portable POSIX tools (busybox friendly) since it is
-intended to work in embedded systems. Rc-versions of this script is planned.
+currently implemented in portable POSIX tools (busybox friendly) and in rc.
 
 More extensive documentation is not yet written.
 
@@ -25,8 +24,8 @@ Requirements
 Development and testing
 -----------------------
 `tools` directory contains scripts for generating fake ports tree for testing.
-Run `./tools/create-testing-env` for creating `root/` directory with installed
-spmk and tree of fake ports in `root/usr/ports`. Then you can execute
+Run `./tools/mktestenv` for creating `root/` directory with installed spmk and
+tree of fake ports in `root/usr/ports`. Then you can execute
 
   export PATH=`pwd`/root/usr/sbin:$PATH
 

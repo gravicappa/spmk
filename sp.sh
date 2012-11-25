@@ -14,19 +14,11 @@ die() {
 }
 
 verify() {
+  s=false
   for k in "$pubkeydir"/*; do
-    if openssl dgst -sha1 -verify "$k" -signature "$2" <"$1" >/dev/null; then
-      return
-    fi
+    openssl dgst -sha1 -verify "$k" -signature "$2" <"$1" >/dev/null && s=true
   done
-  false
-}
-
-current_version() {
-  for f in "$pkgdb"/"$1"-[0-9]*; do
-    basename "$f"
-    break
-  done
+  $s
 }
 
 excluded() {
@@ -38,7 +30,7 @@ excluded() {
 remove_files() {
   awk '{print NR " " $0}' | sort -r -n | sed 's/^[0-9]* //' \
   | while IFS='' read -r f; do
-    if test -f "$exclude" && excluded "$f"; then
+    if test -f "$exclude" && excluded "$f" && test -f "$root/$f"; then
       mv "$root/$f" "$root/$f.saved"
     elif test -f "$root/$f"; then
       rm -f "$root/$f"
@@ -66,15 +58,16 @@ add() {
   test -f "$exclude" && cat "$exclude" >>"$excl"
   trap "rm -rf '$excl' '$tmp'" EXIT HUP INT QUIT ABRT
 
-  gunzip <"$pkgfile" | (cd "$tmp"; tar -x -f - "+PKG") \
+  gunzip <"$pkgfile" | (cd "$tmp" && tar -x -f - +PKG) \
   || die "Broken package."
   gunzip <"$pkgfile" | tar -t -f - -X "$excl" | grep -v '^+PKG' \
   >$tmp/files || die "Broken package."
 
-  (remove "$pkgname") 2>/dev/null
+  remove "$pkgname" 2>/dev/null
 
   if test -z "$force"; then
-    while IFS='' read -r f ; do
+    s=ok
+    while IFS='' read -r f; do
       case "$f" in
         */) check='-f' ;;
         *) check='-e' ;;
@@ -92,8 +85,8 @@ add() {
     die "Couldn't unpack contents of '$pkgfile'"
   fi
 
-  if test -z "$sp_no_script" && test -f "$tmp/+PKG/install" ; then
-    sh -c ". '$tmp/+PKG/install'" || {
+  if test -z "$sp_no_script" && test -f "$tmp/+PKG/install.sh" ; then
+    sh <"$tmp/+PKG/install.sh" || {
       remove_files <"$tmp/files"
       die 'Error in install script.'
     }
@@ -109,14 +102,15 @@ add() {
 }
 
 remove() {
-  pkg="$1"
-  test -d "$pkgdb/$pkg" || pkg="$(current_version "$1")"
-  test -d "$pkgdb/$pkg" || die "Cannot find package '$1'."
-  if test -z "$sp_no_script" && test -f "$pkgdb/$pkg/uninstall" ; then
-    sh -c ". '$pkgdb/$pkg/uninstall'" || die 'Error in uninstall script.'
-  fi
-  sed '1,/^files:/d' <"$pkgdb/$pkg/info" | remove_files
-  rm -rf "$pkgdb/$pkg"
+  for p in "$pkgdb/$1" "$pkgdb"/"$1"-[0-9]*; do
+    if test -d "$p"; then
+      if test -z "$sp_no_script" -a -f "$p/uninstall.sh" ; then
+        sh <"$p/uninstall.sh" || echo 'Uninstall script error.' >&2
+      fi
+      sed '1,/^files:/d' <"$p/info" | remove_files
+      rm -rf "$p"
+    fi
+  done
 }
 
 cmd='add'
@@ -131,4 +125,4 @@ while test $# -gt 0; do
     *) break;;
   esac
 done
-for a; do $cmd "$@"; done
+for a; do $cmd "$a"; done

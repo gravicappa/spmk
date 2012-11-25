@@ -1,17 +1,32 @@
 #!/usr/bin/env rc
 
 pkgdir=$1
-pkgfile=$2
-pkgdep=$3
-pkginst=$4
+pkgdep=$2
+pkgfile=$3
 
-mkdir $pkgdir/install
+mkdir $pkgdir/install || exit 1
+
+if (test -f $pkgdir/install.rc) {
+  {
+    sep=`{dd if=/dev/urandom bs=8 count=1 | cksum | awk '{print $1}'}
+    echo 'exec rc <<'''$sep''''
+    cat $pkgdir/install.rc
+    echo $sep
+  } >$pkgidr/install/doinst.sh
+  rm -f $pkgdir/install.rc
+}
+
+if (test -f $pkgdir/install.sh)
+  mv $pkgdir/install.sh $pkgdir/install/doinst.sh
+
+for (f in uninstall.sh uninstall.rc)
+  if (test -f $pkgdir/$f) {
+    echo 'WARNING: ' `{basename $pkgfile} ' has unsupported uninstall script'
+    rm -f $pkgdir/$f
+  }
+
 {
-  echo '#!/bin/sh'
-  cat $pkginst
-} >$pkgdir/install/doinst.sh
-{
-  for (dep in $pkgdep)
+  for (dep in `{echo $pkgdep})
     echo $dep
 } >$pkgdir/install/slack-required
 
