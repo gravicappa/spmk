@@ -1,45 +1,48 @@
-.TH SPKG 1
-.SH NAME
-spmk \- port/package utility
-.SH SYNOPSIS
-.B spmk
-.RB [ -b
-|
-.B -a
-|
-.B -r
-|
-.B -d
-|
-.BR -rd ]
-.I [packages]
-.I ...
-.SH DESCRIPTION
-.I Spmk
+.Dd Nov 25, 2012
+.Dt SPMK 1 1
+.Os
+.Sh NAME
+
+.Nm spmk
+.Nd port/package utility
+
+.Sh SYNOPSIS
+.Nm
+.Op Fl b
+.Op Fl a
+.Op Fl r
+.Op Fl d
+.Op Fl rd
+.Ar package
+.Bk -words
+.Op Ar packages ...
+.Ek
+
+.Sh DESCRIPTION
+.Nm
 is a port management utility that tracks installed packages on *nix system.
 It features dependency support. If no arguments provided it tries to build
 package from
-.I build.mk
+.Pa build.mk
 in current directory if there is one.
-.SH OPERATIONS
-.TP
-.B -b
+
+See
+.Pa sample/build.mk
+as an example of writing spmk
+.Pa build.mk
+files.
+
+.Sh OPERATIONS
+.Bl -tag
+.It Ar -b
 Builds packages.
-.TP
-.B -a
-Add packages.
-.I Not implemented yet.
-.TP
-.B -r
-Remove packages.
-.TP
-.B -d
+.It Ar -r
+Removes packages.
+.It Ar -d
 List package dependencies.
-.TP
-.B -rd
+.It Ar -rd
 List all installed packages that are required by packages supplied in
 arguments.
-.TP
-.B -u
+.It Ar -u
 Update all packages.
-.I Not implemented yet.
+.Aq Not implemented yet.
