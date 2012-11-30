@@ -1,11 +1,42 @@
-#!/bin/sh
-cmd=installpkg
-while test $# -gt 0; do
-  case "$1" in
-  -[ai]) cmd=installpkg; shift;;
-  -[rd]) cmd=removepkg; shift;;
-  -*) shift;;
-  *) break;;
-  esac
-done
-exec $cmd "$@"
+#!/usr/bin/env rc
+root=$HOME/dev/spmk/root
+test -n $"SPMK_ROOT && root=$"SPMK_ROOT
+pkgdb=$root/var/lib/spmk
+test -n $"SPMK_DB && pkgdb=$"SPMK_DB
+
+fn add {
+  pkg=`{basename $1 | sed 's/\.t[gblx]z$//'}
+  c=installpkg
+  for (p in /var/log/packages/^`{echo $pkg | sed 's/-[0-9].*$//'}^*)
+    if (test -e $p)
+      c=upgradepkg
+  if ($c $1)
+    echo $pkg >$pkgdb/^`{spmk_name $pkg}
+}
+
+fn remove {
+  if (! removepkg $1)
+    exit 1
+  pkg=`{basename $1}
+  for (f in $pkgdb/$pkg $pkgdb/^`{spmk_name $pkg})
+    if (test -f $f)
+      rm -f $f
+}
+
+cmd=add
+while (test $#* -gt 0 -a -z $"argend)
+  switch ($1) {
+  case -[ai]
+    cmd=add
+    shift
+  case -[rd]
+    cmd=remove
+    shift
+  case -[fne]
+    shift
+  case -*
+    die 'usage: sp [-a] [-r] [-e] pkg...'
+  case *
+    argend=1
+  }
+$cmd $*

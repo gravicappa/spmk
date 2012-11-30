@@ -1,0 +1,46 @@
+MKSHELL = rc
+
+version=0.0.1
+rel=1
+pkgname=spmk-$version-noarch-$rel
+pkgfile=`{pwd}/$pkgname.tgz
+
+destdir = `{pwd}/pkg
+prefix = /
+bindir = $prefix/sbin
+
+root = /
+pkgdb = `{cleanname $root/var/lib/spmk}
+
+$pkgfile:VQ: install
+  @{cd $destdir && makepkg -c n -l n $pkgfile}
+
+install:VQ:
+  mkdir -p $destdir/$bindir
+  opts=('destdir='$destdir 'prefix='$prefix 'etcdir='/etc \
+        'libdir='/usr/lib/spmk 'mandir='/usr/share/man/man1)
+  @{cd .. && mk $opts install}
+  {
+    echo '/^fn pkgfilename/c'
+    echo 'fn pkgfilename {'
+    echo '  rel=`{echo $version | awk -F- ''{print $NF}''}'
+    echo '  ver=`{echo $version | sed ''s/-[^-]*$//''}'
+    echo '  echo $name-$ver-$arch-$rel.tgz'
+    echo '}'
+    echo '.'
+    printf 'w\nq\n'
+  } | ed $destdir/$prefix/sbin/spmk
+  awk -F'=' '
+    /^(root|pkgdb)=/ {
+      s = sprintf("%s=''%s''", $1, ENVIRON[$1])
+      gsub(/\/\/*/, "/", s)
+      print s
+      next
+    }
+    {print}' <sp >$destdir/$bindir/sp
+  chmod +x $destdir/$bindir/sp
+  for (f in spmk_local spmk_pkg spmk_name) {
+    cp $f $destdir/$bindir/
+    chmod +x $f
+  }
+

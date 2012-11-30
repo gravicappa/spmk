@@ -25,9 +25,11 @@ for (f in uninstall.sh uninstall.rc)
     rm -f $pkgdir/$f
   }
 
-{
-  for (dep in `{echo $pkgdep})
-    echo $dep
-} >$pkgdir/install/slack-required
+if (test -n $pkgdep) {
+  {
+    for (dep in `{echo $pkgdep})
+      echo $dep
+  } >$pkgdir/install/slack-required
+}
 
-@{cd $pkgdir && makepkg -l -c $pkgfile}
+@{cd $pkgdir && makepkg -l n -c n $pkgfile}

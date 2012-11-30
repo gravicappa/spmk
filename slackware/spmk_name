@@ -1,0 +1,12 @@
+#!/usr/bin/env rc
+awk -v 'pkgname='`{basename $1} '
+  BEGIN {
+    name = tolower(pkgname)
+    sub(/-[0-9].*$/, "", name)
+    tail = tolower(pkgname)
+    sub("^" name "-", "", tail)
+    n = split(tail, x, "-")
+    ver = x[1]
+    pkgver = x[n]
+    print name "-" ver "-" pkgver
+  }'

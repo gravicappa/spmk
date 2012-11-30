@@ -1,0 +1,13 @@
+#!/usr/bin/env rc
+
+force=()
+if (~ $1 '-f')
+  force=yes
+
+if (test -z $"force -a -e $pkgdb -a $pkgdb -nt /var/log/packages)
+  exit 0
+
+mkdir -p $pkgdb
+rm -f $pkgdb/*
+for (file in /var/log/packages/*)
+  basename $file >$pkgdb/^`{spmk_name $file}

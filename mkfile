@@ -22,11 +22,11 @@ subrfiles = vcs
 
 all:V: install
 
-install_dirs:V:
+install_dirs:VQ:
   mkdir -p $destdir/$bindir $destdir/$etcdir/spmk $destdir/$libdir/spmk
   mkdir -p $destdir/$pubkeydir $destdir/$mandir $destdir/$spmk_inc
 
-install_sp_sh:V:
+install_sp_sh:VQ:
   awk -F'=' '
     /^root=/ {printf("%s=\"${SPMK_ROOT:-%s}\"\n", $1, ENVIRON[$1]); next}
     /^pkgdb=/ {printf("%s=\"${SPMK_DB:-%s}\"\n", $1, ENVIRON[$1]); next}
@@ -50,7 +50,7 @@ install_sp_sh:V:
     }
     {print}' <sp.sh >$destdir/$bindir/sp
 
-install_sp_rc:V:
+install_sp_rc:VQ:
   awk -F'=' '
     /^(root|pkgdb|tmpdir|pubkeydir|spmk_privkey)=/ {
       s = sprintf("%s=''%s''", $1, ENVIRON[$1])
@@ -72,7 +72,7 @@ install_sp_rc:V:
     }
     {print}' <sp.rc >$destdir/$bindir/sp
 
-install:V: install_dirs install_sp_$spimp
+install:VQ: install_dirs install_sp_$spimp
   awk -F'=' '/^(spmk_mk_d|pkgdb|root|spmk_inc|spmk_privkey)=/ {
                printf("%s=''%s''\n", $1, ENVIRON[$1])
                next
@@ -85,3 +85,4 @@ install:V: install_dirs install_sp_$spimp
   touch $destdir/$spmk_mk_d/empty.mk
   cp $subrfiles $destdir/$spmk_inc
   cp spmk.1 $destdir/$mandir
+  cp sp.1 $destdir/$mandir

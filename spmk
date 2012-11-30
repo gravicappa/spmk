@@ -7,9 +7,10 @@ root=$HOME/dev/spmk/root
 pkgdb=$root/var/lib/spmk
 ports=$root/usr/ports
 buildroot=$root/tmp/build
-pkgfmt='$target-$arch.pkg.tar.gz'
 sudo=sudo
 test -n $"arch || arch=`{uname -m}
+
+fn pkgfilename {echo $target-$arch.pkg.tar.gz}
 
 fn die {
   echo $* >[1=2]
@@ -25,10 +26,10 @@ fn verifysrc {
     die Wrong checksum for $1
 }
 
-fn pkgend {
+fn mkpkg {
   s=$status
   if (~ $s '') {
-    eval 'f=`{echo' $"pkgfmt '}'
+    f=`{pkgfilename}
     spmk_pkg $pkgdir $"prereq $pkgdest/$"f
     if (test -f $spmk_privkey)
       openssl dgst -sha1 -sign $spmk_privkey <$pkgdest/$"f >$pkgdest/$"f.sig
@@ -52,8 +53,8 @@ fn __PACKAGE__ {
   pkgdir=$pkgroot/pkg
   pkgdest=$ports
   for (s in $arch any)
-    ifs='' f='' {
-      arch=$s eval 'f=`{echo' $"pkgfmt '}'
+    f='' {
+      f=`{arch=$s pkgfilename}
       if (test -f $pkgdest/$"f)
         $sudo sp -a $pkgdest/$"f && exit 0
     }
@@ -68,11 +69,11 @@ fn __PACKAGE__ {
   mkdir -p $pkgroot $pkgdir
   cd $pkgroot
 
-  fn sigexit {pkgend}
+  fn sigexit {mkpkg}
 }
 
 fn mkports {
-  for (f in $ports/*/spmk_*) test -x $f && $f
+  rc -e -c 'whatis spmk_local' >/dev/null >[2=1] && spmk_local
   awk 'BEGIN {print "MKSHELL=rc"}
        /^[ \t]*__PACKAGE__[ \t]*$/ {print "  portfile=''" FILENAME "''"}
        {print}
@@ -80,7 +81,7 @@ fn mkports {
 }
 
 fn mkrevdep {
-  for (f in $ports/*/spmk_*) test -x $f && $f
+  rc -e -c 'whatis spmk_local' >/dev/null >[2=1] && spmk_local
   awk -F: 'BEGIN {printf "MKSHELL=rc\n%:Q:\n  echo $target\n\n"}
            /^[^ \t][^''=%:]*:/ {
              sub(/:[A-Z]+:/, ":")
@@ -91,7 +92,7 @@ fn mkrevdep {
 }
 
 fn mkdep {
-  for (f in $ports/*/spmk_*) test -x $f && $f
+  rc -e -c 'whatis spmk_local' >/dev/null >[2=1] && spmk_local
   awk 'BEGIN {printf "MKSHELL=rc\npkgmode=dep\n"}
        /^[^ \t][^''=:%]*:/ {sub(/:[A-Z]*:*/, ":VQ:")}
        {print}' $ports/*/*/build.mk
@@ -106,23 +107,17 @@ switch ($cmd) {
     dir=`{pwd}
     cd $pkgdb
     exec mk -f <{mkports $"dir/build.mk}
-
   case -b
     cd $pkgdb
     exec mk -f <{mkports} $*
-
   case -r
     exec sp -r <{mk -f <{mkrevdep} $* | grep -v '[-][0-9]'}
-
   case -d
     exec mk -f <{mkdep} $*
-
   case -rd
     mk -f <{mkrevdep} $* | grep -v '[-][0-9]'
-
   case -u
     die 'TODO: update whole system'
-
   case *
     echo 'Usage: spmk [-b|-a|-r|-d|-rd|-u] packages...'
     exit 1
