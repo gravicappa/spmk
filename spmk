@@ -6,6 +6,7 @@ spmk_privkey=$HOME/dev/spmk/priv.key
 root=$HOME/dev/spmk/root
 pkgdb=$root/var/lib/spmk
 ports=$root/usr/ports
+pkgdest=$ports
 buildroot=$root/tmp/build
 sudo=sudo
 test -n $"arch || arch=`{uname -m}
@@ -13,7 +14,7 @@ test -n $"arch || arch=`{uname -m}
 fn pkgfilename {echo $target-$arch.pkg.tar.gz}
 
 fn die {
-  echo $* >[1=2]
+  echo $1 >[1=2]
   exit 1
 }
 
@@ -23,7 +24,7 @@ fn msg {
 
 fn verifysrc {
   if (! ~ $2 `{sha1sum $1 | awk '{print $1}'})
-    die Wrong checksum for $1
+    die 'Wrong checksum for '^$1
 }
 
 fn mkpkg {
@@ -36,30 +37,28 @@ fn mkpkg {
     if not
       msg Warning: cannot sign package $pkgdest/$"f
     $sudo sp -a $pkgdest/$"f
-    rm -rf $pkgroot
   }
   exit $s
 }
 
 fn __PACKAGE__ {
   switch ($"pkgmode) {
-    case dep
-      echo $target
-      exit 0
+  case dep
+    echo $target
+    exit 0
   }
   test -e $target && exit 0
   portdir=`{dirname $portfile}
   pkgroot=$buildroot/$target
   pkgdir=$pkgroot/pkg
-  pkgdest=$ports
+  name=`{echo $target | sed 's/-[0-9].*$//'}
+  version=`{echo $target | sed s/$name-//}
   for (s in $arch any)
     f='' {
       f=`{arch=$s pkgfilename}
       if (test -f $pkgdest/$"f)
         $sudo sp -a $pkgdest/$"f && exit 0
     }
-  name=`{echo $target | sed 's/-[0-9].*$//'}
-  version=`{echo $target | sed s/$name-//}
   if (! ~ ' '^$"MKARGS^' ' *' '^$name^' '*)
     reason=dependency
   if (test -n $"REASON)
@@ -102,23 +101,23 @@ cmd=$1
 if (~ $cmd -*)
   shift
 switch ($cmd) {
-  case ''
-    test -f build.mk || die 'no build.mk'
-    dir=`{pwd}
-    cd $pkgdb
-    exec mk -f <{mkports $"dir/build.mk}
-  case -b
-    cd $pkgdb
-    exec mk -f <{mkports} $*
-  case -r
-    exec sp -r <{mk -f <{mkrevdep} $* | grep -v '[-][0-9]'}
-  case -d
-    exec mk -f <{mkdep} $*
-  case -rd
-    mk -f <{mkrevdep} $* | grep -v '[-][0-9]'
-  case -u
-    die 'TODO: update whole system'
-  case *
-    echo 'Usage: spmk [-b|-a|-r|-d|-rd|-u] packages...'
-    exit 1
+case ''
+  test -f build.mk || die 'no build.mk'
+  dir=`{pwd}
+  cd $pkgdb
+  exec mk -f <{mkports $"dir/build.mk}
+case -b
+  cd $pkgdb
+  exec mk -f <{mkports} $*
+case -r
+  exec sp -r <{mk -f <{mkrevdep} $* | grep -v '[-][0-9]'}
+case -d
+  exec mk -f <{mkdep} $*
+case -rd
+  mk -f <{mkrevdep} $* | grep -v '[-][0-9]'
+case -u
+  die 'TODO: update whole system'
+case *
+  echo 'Usage: spmk [-b|-a|-r|-d|-rd|-u] packages...'
+  exit 1
 }

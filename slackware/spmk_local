@@ -1,5 +1,8 @@
 #!/usr/bin/env rc
 
+if (! ~ `{id -u} 0)
+  exec $sudo 'pkgdb='$pkgdb $0 $*
+
 force=()
 if (~ $1 '-f')
   force=yes

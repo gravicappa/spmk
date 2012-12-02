@@ -4,6 +4,11 @@ test -n $"SPMK_ROOT && root=$"SPMK_ROOT
 pkgdb=$root/var/lib/spmk
 test -n $"SPMK_DB && pkgdb=$"SPMK_DB
 
+fn die {
+  echo $1 >[1=2]
+  exit 1
+}
+
 fn add {
   pkg=`{basename $1 | sed 's/\.t[gblx]z$//'}
   c=installpkg
@@ -39,4 +44,6 @@ while (test $#* -gt 0 -a -z $"argend)
   case *
     argend=1
   }
+if (! test $#* -gt 0)
+  die 'usage: sp [-a] [-r] [-e] pkg...'
 $cmd $*
