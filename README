@@ -7,8 +7,8 @@ Features:
   * support of binary packages,
   * package signing (currently uses openssl, polarssl is planned).
 
-Ports part implemented in 9base tools (rc, mk). Package management (sp)
-currently implemented in portable POSIX tools (busybox friendly) and in rc.
+Ports part implemented in 9base tools (rc, mk). Package management currently
+implemented in portable POSIX tools (busybox friendly) and in rc.
 
 More extensive documentation is not yet written.
 
@@ -19,7 +19,12 @@ Requirements
   * openssl
   * fakeroot (used for setting owner as root in package tarball)
   * tar, gzip
-  * coreutils (for cp, mv, rm and package management tools)
+  * coreutils (cp, mv, rm)
+
+Slackware backend
+-----------------
+To build a package for spmk with slackware backend type `mk` in `slackware`
+directory.
 
 Development and testing
 -----------------------
