@@ -35,7 +35,7 @@ fn mkpkg {
     if (test -f $spmk_privkey)
       openssl dgst -sha1 -sign $spmk_privkey <$pkgdest/$"f >$pkgdest/$"f.sig
     if not
-      msg Warning: cannot sign package $pkgdest/$"f
+      msg 'Warning: cannot sign package '^$pkgdest/$"f
     $sudo sp -a $pkgdest/$"f
   }
   exit $s
