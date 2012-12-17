@@ -1,7 +1,8 @@
 #!/usr/bin/env rc
 
-if (! ~ `{id -u} 0)
-  exec $sudo 'pkgdb='$pkgdb $0 $*
+sudo=sudo
+pkgdb=
+ports=
 
 force=()
 if (~ $1 '-f')
@@ -10,7 +11,17 @@ if (~ $1 '-f')
 if (test -z $"force -a -e $pkgdb -a $pkgdb -nt /var/log/packages)
   exit 0
 
+if (! ~ `{id -u} 0)
+  exec $sudo 'pkgdb='$pkgdb 'ports='$ports $0 $*
+
 mkdir -p $pkgdb
 rm -f $pkgdb/*
-for (file in /var/log/packages/*)
-  basename $file >$pkgdb/^`{spmk_name $file}
+{
+  for (file in /var/log/packages/*) {
+    name=`{spmk_name $file}
+    basename $file >$pkgdb/$"name
+    echo $"name | sed 's/-[0-9].*$//'
+  }
+  echo '%:Q:'
+  echo ' $sudo slackpkg install $target || $sudo slapt-get -i $target'
+} >$ports/slackware/slackware/build.mk

@@ -11,6 +11,7 @@ bindir = $prefix/sbin
 
 root = /
 pkgdb = `{cleanname $root/var/lib/spmk}
+ports = `{cleanname $root/usr/ports}
 
 $pkgfile:VQ: install
   @{cd $destdir && makepkg -c n -l n $pkgfile}
@@ -30,17 +31,19 @@ install:VQ:
     echo '.'
     printf 'w\nq\n'
   } | ed $destdir/$prefix/sbin/spmk
-  awk -F'=' '
-    /^(root|pkgdb)=/ {
-      s = sprintf("%s=''%s''", $1, ENVIRON[$1])
-      gsub(/\/\/*/, "/", s)
-      print s
-      next
-    }
-    {print}' <sp >$destdir/$bindir/sp
-  chmod +x $destdir/$bindir/sp
-  for (f in spmk_local spmk_pkg spmk_name) {
+  for (f in sp spmk_local) {
+    awk -F'=' '
+      /^(root|pkgdb|ports)=/ {
+        s = sprintf("%s=''%s''", $1, ENVIRON[$1])
+        gsub(/\/\/*/, "/", s)
+        print s
+        next
+      }
+      {print}' <$f >$destdir/$bindir/$f
+    chmod +x $destdir/$bindir/$f
+  }
+  for (f in spmk_pkg spmk_name) {
     cp $f $destdir/$bindir/
-    chmod +x $f
+    chmod +x $destdir/$bindir/$f
   }
 
