@@ -64,7 +64,6 @@ fn __PACKAGE__ {
   if (test -n $"REASON)
     reason=$REASON
 
-  rm -rf $pkgroot
   mkdir -p $pkgroot $pkgdir
   cd $pkgroot
 
