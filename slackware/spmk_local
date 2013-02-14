@@ -18,12 +18,18 @@ mkdir -p $pkgdb
 rm -f $pkgdb/*
 {
   echo '%:Q:'
-  echo '  $sudo slapt-get -i $target || $sudo slackpkg install $target'
+  echo '  _found=0'
+  echo '  for (_x in $target-[0-9]*)'
+  echo '    if (test -e $_x)'
+  echo '      _found=1'
+  echo '  if (~ $_found 0)'
+  echo '    $sudo slapt-get -i $target || $sudo slackpkg install $target'
+  echo '  if not true'
   echo ''
-  for (file in /var/log/packages/*) {
-    name=`{spmk_name $file}
-    basename $file >$pkgdb/$"name
-    s=`{echo $"name | sed 's/-[0-9].*$//'}
-    echo $s:QV:$"name
-  }
+  #for (file in /var/log/packages/*) {
+  #  name=`{spmk_name $file}
+  #  basename $file >$pkgdb/$"name
+  #  s=`{echo $"name | sed 's/-[0-9].*$//'}
+  #  echo $s:QV:$"name
+  #}
 } >$ports/slackware/slackware/build.mk

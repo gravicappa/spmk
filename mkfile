@@ -18,8 +18,6 @@ spmk_inc = $libdir/spmk
 
 <config.mk
 
-subrfiles =
-
 all:V: install
 
 install_dirs:VQ:
@@ -83,6 +81,5 @@ install:VQ: install_dirs install_sp_$spimp
   for (f in sp spmk_pkg spmk)
     chmod 755 $destdir/$bindir/$f
   touch $destdir/$spmk_mk_d/empty.mk
-  cp $subrfiles $destdir/$spmk_inc
   cp spmk.1 $destdir/$mandir
   cp sp.1 $destdir/$mandir

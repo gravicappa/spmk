@@ -45,7 +45,6 @@ fn mkport {
     echo
     echo $port_name^'-'^$ver:Q: $deps
     echo '  __PACKAGE__'
-    echo '  . $spmk_inc/vcs'
     echo '  msg download'
     echo '  #test -f $port_name.tar.gz \'
     echo '  #|| wget http://nosuchhost.org/$port_name.tar.gz'
