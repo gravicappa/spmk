@@ -18,7 +18,7 @@ spmk_inc = $libdir/spmk
 
 <config.mk
 
-subrfiles = vcs
+subrfiles =
 
 all:V: install
 
