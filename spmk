@@ -22,6 +22,42 @@ fn msg {
   echo '#' $target: $* >[1=2]
 }
 
+fn download {
+  # usage: download url filename
+  filename=$2
+  if (test -z $"filename)
+    filename=`{basename $1}
+  if (! test -f $"filename)
+    wget -O $"filename $1
+  echo $"filename
+}
+
+fn download_git {
+  # usage: download_git repo dir [tag]
+  if (test -d $2)
+    cd $name && git pull origin
+  if not
+    git clone $1 $2
+  rm -rf $2-build
+  git clone $2 $2-build
+  if (test -n $3)
+    @{cd $2-build && git checkout $3}
+  echo $2-build
+}
+
+fn download_hg {
+  # usage: download_hg repo dir [tag]
+  if (test -d $2)
+    cd $name && hg pull -u
+  if not
+    hg clone $1 $2
+  rm -rf $2-build
+  cp -r $2 $2-build
+  if (test -n $3)
+    @{cd $2-build && hg checkout $3}
+  echo $2-build
+}
+
 fn verifysrc {
   if (! ~ $2 `{sha1sum $1 | awk '{print $1}'})
     die 'Wrong checksum for '^$1
