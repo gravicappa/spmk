@@ -17,11 +17,13 @@ if (! ~ `{id -u} 0)
 mkdir -p $pkgdb
 rm -f $pkgdb/*
 {
+  echo '%:Q:'
+  echo '  $sudo slapt-get -i $target || $sudo slackpkg install $target'
+  echo ''
   for (file in /var/log/packages/*) {
     name=`{spmk_name $file}
     basename $file >$pkgdb/$"name
-    echo $"name | sed 's/-[0-9].*$//'
+    s=`{echo $"name | sed 's/-[0-9].*$//'}
+    echo $s:QV:$"name
   }
-  echo '%:Q:'
-  echo ' $sudo slackpkg install $target || $sudo slapt-get -i $target'
 } >$ports/slackware/slackware/build.mk

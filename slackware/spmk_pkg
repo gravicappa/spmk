@@ -8,7 +8,7 @@ mkdir $pkgdir/install || exit 1
 
 if (test -f $pkgdir/install.rc) {
   {
-    sep=`{dd if=/dev/urandom bs=8 count=1 | cksum | awk '{print $1}'}
+    sep=`{dd 'if='/dev/urandom 'bs='8 'count='1 | cksum | awk '{print $1}'}
     echo 'exec rc <<'''$sep''''
     cat $pkgdir/install.rc
     echo $sep
