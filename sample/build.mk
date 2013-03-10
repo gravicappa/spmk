@@ -9,19 +9,19 @@ sample-pkg-$sample_pkg_ver: dep1 dep2
   # $pkgdir into package tarball
   __PACKAGE__
   #
-  # source git/hg plugin that provides download_(git|hg)
-  . $spmk_inc/vcs
-  #
   gitroot=http://git.example.hg
   download_git $gitroot $name $sample_pkg_ver
+
+	# working repo is located in $name-build directory
   cd $name-build
+
   opts=('prefix='/usr/local 'CC='$CC 'CFLAGS='-static 'destdir='$pkgdir)
   mk $opts all install
   #
   # add install and uninstall scripts to package
   #
-  cp inst.sh $pkgdir/install.sh
-  cp uninst.sh $pkgdir/uninstall.sh
+  cp $portdir/inst.sh $pkgdir/install.sh
+  cp $portdir/uninst.sh $pkgdir/uninstall.sh
   #
   # add rc versions of install and uninstall scripts
   #
