@@ -5,7 +5,6 @@ rel=1
 pkgname=spmk-$version-noarch-$rel
 pkgfile=`{pwd}/$pkgname.tgz
 
-destdir = `{pwd}/pkg
 prefix = /
 bindir = $prefix/sbin
 
@@ -13,14 +12,17 @@ root = /
 pkgdb = `{cleanname $root/var/lib/spmk}
 ports = `{cleanname $root/usr/ports}
 
-$pkgfile:VQ: install
+$pkgfile:VQ:
+  destdir=`{pwd}/pkg
+  mk 'destdir='$destdir install
   @{cd $destdir && makepkg -c n -l n $pkgfile}
 
 install:VQ:
-  mkdir -p $destdir/$bindir
+  mkdir -p $destdir/$bindir $destdir/$ports/slackware/slackware
   opts=('destdir='$destdir 'prefix='$prefix 'etcdir='/etc \
         'libdir='/usr/lib/spmk 'mandir='/usr/share/man/man1)
   @{cd .. && mk $opts install}
+  cp slack.mk $destdir/$ports/slackware/slackware/build.mk
   {
     echo '/^fn pkgfilename/c'
     echo 'fn pkgfilename {'
@@ -30,8 +32,8 @@ install:VQ:
     echo '}'
     echo '.'
     printf 'w\nq\n'
-  } | ed $destdir/$prefix/sbin/spmk
-  for (f in sp spmk_local) {
+  } | ed $destdir/$prefix/sbin/spmk >[2]/dev/null
+  for (f in sp) {
     awk -F'=' '
       /^(root|pkgdb|ports)=/ {
         s = sprintf("%s=''%s''", $1, ENVIRON[$1])
