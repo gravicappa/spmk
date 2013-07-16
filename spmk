@@ -13,7 +13,7 @@ test -n $"arch || arch=`{uname -m}
 
 fn pkgfilename {echo $target-$arch.pkg.tar.gz}
 fn msg {echo '#' $target: $* >[1=2]}
-fn ver {echo $1 | sed 's/-[0-9]$//'}
+fn ver {echo $1 | awk -F- '{print $1}'}
 
 fn die {
   echo $1 >[1=2]
