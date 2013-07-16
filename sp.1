@@ -55,7 +55,7 @@ using one of the keys in
 directory unless called with
 .Ar -n .
 .It
-If package with the same name is installed removes that package as
+If package with the same name is installed removes that package as by
 .Ql sp -r ... .
 .It
 Checks if installing package would overwrite existing files (stops with error
@@ -68,7 +68,9 @@ Runs package's
 .Pa install
 script if it exists and if environment variable
 .Ev sp_no_script
-is unset or empty.
+is unset or empty. If
+.Pa install
+script fails then removes package and stops with error.
 .It
 Saves package's information.
 .El

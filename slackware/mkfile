@@ -24,9 +24,9 @@ install:VQ:
   {
     echo '/^fn pkgfilename/c'
     echo 'fn pkgfilename {'
-    echo '  rel=`{echo $version | awk -F- ''{print $NF}''}'
-    echo '  ver=`{echo $version | sed ''s/-[^-]*$//''}'
-    echo '  echo $name-$ver-$arch-$rel.tgz'
+    echo '  rel=`{echo $pkgversion | awk -F- ''{print $NF}''}'
+    echo '  ver=`{echo $pkgversion | sed ''s/-[^-]*$//''}'
+    echo '  echo $pkgname-$ver-$arch-$rel.tgz'
     echo '}'
     echo '.'
     printf 'w\nq\n'

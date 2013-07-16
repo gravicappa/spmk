@@ -12,14 +12,12 @@ sudo=sudo
 test -n $"arch || arch=`{uname -m}
 
 fn pkgfilename {echo $target-$arch.pkg.tar.gz}
+fn msg {echo '#' $target: $* >[1=2]}
+fn ver {echo $1 | sed 's/-[0-9]$//'}
 
 fn die {
   echo $1 >[1=2]
   exit 1
-}
-
-fn msg {
-  echo '#' $target: $* >[1=2]
 }
 
 fn download {
@@ -85,21 +83,22 @@ fn __PACKAGE__ {
   }
   test -e $target && exit 0
   portdir=`{dirname $portfile}
-  pkgroot=$buildroot/$target
+  pkgname=`{echo $target | sed 's/-[0-9].*$//'}
+  pkgversion=`{echo $target | sed s/$pkgname-//}
+  pkgroot=$buildroot/$pkgname
   pkgdir=$pkgroot/pkg
-  name=`{echo $target | sed 's/-[0-9].*$//'}
-  version=`{echo $target | sed s/$name-//}
   for (s in $arch any)
     f='' {
       f=`{arch=$s pkgfilename}
       if (test -f $pkgdest/$"f)
         $sudo sp -a $pkgdest/$"f && exit 0
     }
-  if (! ~ ' '^$"MKARGS^' ' *' '^$name^' '*)
+  if (! ~ ' '^$"MKARGS^' ' *' '^$pkgname^' '*)
     reason=dependency
   if (test -n $"REASON)
     reason=$REASON
 
+  rm -rf $pkgdir
   mkdir -p $pkgroot $pkgdir
   cd $pkgroot
 
