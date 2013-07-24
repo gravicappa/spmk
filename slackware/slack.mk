@@ -4,5 +4,5 @@
     if (test -e $_x)
       _found=1
   if (~ $_found 0)
-    $sudo slapt-get -i $target || $sudo slackpkg install $target
+    {$sudo slapt-get -i $target || $sudo slapt-src -i $target} </dev/tty
   if not true
