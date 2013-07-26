@@ -15,6 +15,7 @@ pubkeydir = $etcdir/spmk/pubkeys
 spmk_privkey = $etcdir/spmk/priv.key
 tmpdir = `{cleanname $root/tmp/spmk}
 spmk_inc = $libdir/spmk
+buildroot = `{cleanname $root/tmp/spmk/build}
 
 <config.mk
 
@@ -71,7 +72,7 @@ install_sp_rc:VQ:
     {print}' <sp.rc >$destdir/$bindir/sp
 
 install:VQ: install_dirs install_sp_$spimp
-  awk -F'=' '/^(spmk_mk_d|pkgdb|root|spmk_inc|spmk_privkey)=/ {
+  awk -F'=' '/^(spmk_mk_d|pkgdb|root|spmk_inc|spmk_privkey|buildroot)=/ {
                printf("%s=''%s''\n", $1, ENVIRON[$1])
                next
              }

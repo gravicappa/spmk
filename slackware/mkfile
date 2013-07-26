@@ -11,24 +11,27 @@ bindir = $prefix/sbin
 root = /
 pkgdb = `{cleanname $root/var/lib/spmk}
 ports = `{cleanname $root/usr/ports}
+buildroot = `{cleanname $root/usr/ports/build}
+
+all:QV: $pkgfile
 
 $pkgfile:VQ:
-  destdir=`{pwd}/pkg
+  destdir=`{pwd}^/pkg
   mk 'destdir='$destdir install
   @{cd $destdir && makepkg -c n -l n $pkgfile}
 
 install:VQ:
   mkdir -p $destdir/$bindir $destdir/$ports/slackware/slackware
   opts=('destdir='$destdir 'prefix='$prefix 'etcdir='/etc \
-        'libdir='/usr/lib/spmk 'mandir='/usr/share/man/man1)
+        'libdir='/usr/lib/spmk 'mandir='/usr/share/man/man1 \
+        'buildroot='$buildroot)
   @{cd .. && mk $opts install}
   cp slack.mk $destdir/$ports/slackware/slackware/build.mk
   {
     echo '/^fn pkgfilename/c'
     echo 'fn pkgfilename {'
-    echo '  rel=`{echo $pkgversion | awk -F- ''{print $NF}''}'
-    echo '  ver=`{echo $pkgversion | sed ''s/-[^-]*$//''}'
-    echo '  echo $pkgname-$ver-$arch-$rel.tgz'
+    echo '  rel=`{echo $pkgverrel | awk -F- ''{print $NF}''}'
+    echo '  echo $pkgname-$pkgver-$arch-$rel.tgz'
     echo '}'
     echo '.'
     printf 'w\nq\n'
