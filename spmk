@@ -20,7 +20,7 @@ fn die {
 }
 
 fn download {
-  # usage: download url filename
+  # usage: download url [filename]
   filename=$2
   if (test -z $"filename)
     filename=`{basename $1}
@@ -29,27 +29,29 @@ fn download {
 }
 
 fn download_git {
-  # usage: download_git repo dir [tag]
-  if (test -d $2)
-    @{cd $2 && git pull origin}
+  # usage: download_git repo [dir [tag]]
+  test $#2 -ne 0 && dir=$2 || dir=`{basename $1}
+  if (test -d $dir)
+    @{cd $dir && git pull origin}
   if not
-    git clone $1 $2
-  rm -rf $2-build
-  git clone $2 $2-build
-  if (test -n $3)
-    @{cd $2-build && git checkout $3}
+    git clone $1 $dir
+  rm -rf $dir-build
+  git clone $dir $dir-build
+  if (test $#3 -ne 0)
+    @{cd $dir-build && git checkout $3}
 }
 
 fn download_hg {
-  # usage: download_hg repo dir [tag]
-  if (test -d $2)
-    @{cd $2 && hg pull -u}
+  # usage: download_hg repo [dir [tag]]
+  test $#2 -ne 0 && dir=$2 || dir=`{basename $1}
+  if (test -d $dir)
+    @{cd $dir && hg pull -u}
   if not
-    hg clone $1 $2
-  rm -rf $2-build
-  cp -r $2 $2-build
-  if (test -n $3)
-    @{cd $2-build && hg checkout $3}
+    hg clone $1 $dir
+  rm -rf $dir-build
+  cp -r $dir $dir-build
+  if (test $#3 -ne 0)
+    @{cd $dir-build && hg checkout $3}
 }
 
 fn verifysrc {
@@ -109,7 +111,7 @@ fn fixver {
 }
 
 fn mkports {
-  awk 'BEGIN {print "MKSHELL=rc\n.pre:VQ:\n  true\n.post:VQ:\n  true\n"}
+  awk 'BEGIN {print "MKSHELL=rc\n.pre:VQ:\n  exit\n.post:VQ:\n  exit\n"}
        /^[ \t]*__PACKAGE__[ \t]*$/ {print "  portfile=''" FILENAME "''"}
        {print}
        END {print "<|cat $spmk_mk_d/*.mk"}' $ports/*/*/build.mk $* | fixver
