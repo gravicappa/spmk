@@ -72,15 +72,10 @@ fn mkpkg {
 }
 
 fn __PACKAGE__ {
-  switch ($"pkgmode) {
-  case dep
-    echo $target
-    exit 0
-  }
   test -e $target && exit 0
   portdir=`{dirname $portfile}
   pkgname=`{echo $target | sed 's/-[0-9].*$//'}
-  pkgverrel=`{echo $target | sed s/$pkgname-//}
+  pkgverrel=`{echo $target | sed s/'^'$pkgname-//}
   pkgver=`{echo $pkgverrel | sed 's/-[0-9]*$//'}
   pkgroot=$buildroot/$pkgname
   pkgdir=$pkgroot/pkg
@@ -103,16 +98,14 @@ fn __PACKAGE__ {
 }
 
 fn mkports {
-  rc -e -c 'whatis spmk_local' >/dev/null >[2=1] && spmk_local
-  awk 'BEGIN {print "MKSHELL=rc"}
+  awk 'BEGIN {print "MKSHELL=rc\nspmk_prebuild:V:\nspmk_postbuild:V:\n"}
        /^[ \t]*__PACKAGE__[ \t]*$/ {print "  portfile=''" FILENAME "''"}
        {print}
        END {print "<|cat $spmk_mk_d/*.mk"}' $ports/*/*/build.mk $*
 }
 
 fn mkrevdep {
-  rc -e -c 'whatis spmk_local' >/dev/null >[2=1] && spmk_local
-  awk -F: 'BEGIN {printf "MKSHELL=rc\n%:Q:\n  echo $target\n\n"}
+  awk -F: 'BEGIN {print "MKSHELL=rc\n%:Q:\n  echo $target\n\n"}
            /^[^ \t][^''=%:]*:/ {
              sub(/:[A-Z]+:/, ":")
              sub(/^[ \t]*/, "", $2)
@@ -122,9 +115,9 @@ fn mkrevdep {
 }
 
 fn mkdep {
-  rc -e -c 'whatis spmk_local' >/dev/null >[2=1] && spmk_local
-  awk 'BEGIN {printf "MKSHELL=rc\npkgmode=dep\n"}
+  awk 'BEGIN {print "MKSHELL=rc\n"}
        /^[^ \t][^''=:%]*:/ {sub(/:[A-Z]*:*/, ":VQ:")}
+       /^[ \t]*__PACKAGE__[ \t]*$/ {print "  echo \$target; exit 0"}
        {print}' $ports/*/*/build.mk
 }
 
@@ -139,7 +132,7 @@ case ''
   exec mk -f <{mkports $"dir/build.mk}
 case -b
   cd $pkgdb
-  exec mk -f <{mkports} $*
+  exec mk -f <{mkports} spmk_prebuild $* spmk_postbuild
 case -r
   exec sp -r <{mk -f <{mkrevdep} $* | grep -v '[-][0-9]'}
 case -d
