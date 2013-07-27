@@ -97,11 +97,22 @@ fn __PACKAGE__ {
   fn sigexit {mkpkg}
 }
 
+fn fixver {
+  awk '/^[^ \t][^''=:%]*-[0-9][^''=:%]*:/ {
+         p = $0
+         sub(/:.*$/, "", p)
+         t = p
+         sub(/-[0-9].*$/, "", t)
+         print t ":QV:" p
+       }
+       {print}'
+}
+
 fn mkports {
-  awk 'BEGIN {print "MKSHELL=rc\nspmk_prebuild:V:\nspmk_postbuild:V:\n"}
+  awk 'BEGIN {print "MKSHELL=rc\n.pre:VQ:\n  true\n.post:VQ:\n  true\n"}
        /^[ \t]*__PACKAGE__[ \t]*$/ {print "  portfile=''" FILENAME "''"}
        {print}
-       END {print "<|cat $spmk_mk_d/*.mk"}' $ports/*/*/build.mk $*
+       END {print "<|cat $spmk_mk_d/*.mk"}' $ports/*/*/build.mk $* | fixver
 }
 
 fn mkrevdep {
@@ -111,14 +122,14 @@ fn mkrevdep {
              sub(/^[ \t]*/, "", $2)
              if (length($2) > 0)
                print $2 ":VQ: " $1
-           }' $ports/*/*/build.mk
+           }' $ports/*/*/build.mk | fixver
 }
 
 fn mkdep {
   awk 'BEGIN {print "MKSHELL=rc\n"}
        /^[^ \t][^''=:%]*:/ {sub(/:[A-Z]*:*/, ":VQ:")}
        /^[ \t]*__PACKAGE__[ \t]*$/ {print "  echo \$target; exit 0"}
-       {print}' $ports/*/*/build.mk
+       {print}' $ports/*/*/build.mk | fixver
 }
 
 cmd=$1
@@ -129,10 +140,10 @@ case ''
   test -f build.mk || die 'no build.mk'
   dir=`{pwd}
   cd $pkgdb
-  exec mk -f <{mkports $"dir/build.mk}
+  exec mk -f <{mkports $"dir/build.mk} .pre `{basename $dir} .post
 case -b
   cd $pkgdb
-  exec mk -f <{mkports} spmk_prebuild $* spmk_postbuild
+  exec mk -f <{mkports} .pre $* .post
 case -r
   exec sp -r <{mk -f <{mkrevdep} $* | grep -v '[-][0-9]'}
 case -d
