@@ -25,7 +25,8 @@ fn download {
   if (test -z $"filename)
     filename=`{basename $1}
   if (! test -f $"filename)
-    wget -O $"filename $1
+    wget -c --no-check-certificate -O $"filename $1
+  if not true
 }
 
 fn download_git {
@@ -39,6 +40,7 @@ fn download_git {
   git clone $dir $dir-build
   if (test $#3 -ne 0)
     @{cd $dir-build && git checkout $3}
+  if not true
 }
 
 fn download_hg {
@@ -52,6 +54,7 @@ fn download_hg {
   cp -r $dir $dir-build
   if (test $#3 -ne 0)
     @{cd $dir-build && hg checkout $3}
+  if not true
 }
 
 fn verifysrc {
