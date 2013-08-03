@@ -39,5 +39,5 @@ and play with spmk and sp.
 Contacts
 --------
 jid: ramil.fh@jabber.ru
-mail: echo gmx.co.uk ramil | awk '{print $2 "@" $1}'
+mail: ramil@gmx.co.uk
 irc: gravicappa at irc.freenode.net && irc.oftc.net

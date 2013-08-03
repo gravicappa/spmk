@@ -10,17 +10,14 @@ fn die {
 }
 
 fn add {
-  pkg=`{basename $1 | sed 's/\.t[gblx]z$//'}
-  c=installpkg
-  for (p in /var/log/packages/^`{echo $pkg | sed 's/-[0-9].*$//'}^*)
-    if (test -e $p)
-      c=upgradepkg
-  if ($c $1)
+  if (ROOT=$root upgradepkg --install-new $1) {
+    pkg=`{basename $1 | sed 's/\.t[gblx]z$//'}
     echo $pkg >$pkgdb/^`{spmk_name $pkg}
+  }
 }
 
 fn remove {
-  if (! removepkg $1)
+  if (! ROOT=$root removepkg $1)
     exit 1
   pkg=`{basename $1}
   for (f in $pkgdb/$pkg $pkgdb/^`{spmk_name $pkg})
