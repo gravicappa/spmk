@@ -10,7 +10,8 @@ Features:
 Ports part implemented in 9base tools (rc, mk). Package management currently
 implemented in portable POSIX tools (busybox friendly) and in rc.
 
-More extensive documentation is not yet written.
+More extensive documentation is not yet written. Currently look into
+`sample/build.mk`.
 
 Requirements
 ------------
