@@ -21,7 +21,7 @@ sample-pkg-1.7.8-1:Q: dep1 dep2
   #   download_git http://git.example.hg $pkgname master
   #
 	# When using download_git or download_hg working repo is located in
-	# $name-build directory
+	# $pkgname-build directory
 	cd $pkgname-build
 	#
   opts=('prefix='/usr/local 'CC='$CC 'CFLAGS='-static 'destdir='$pkgdir)
@@ -34,5 +34,5 @@ sample-pkg-1.7.8-1:Q: dep1 dep2
   #
   # Add rc versions of install and uninstall scripts
   #
-  cp inst.rc $pkgdir/install.rc
-  cp uninst.rc $pkgdir/uninstall.rc
+  cp $portdir/inst.rc $pkgdir/install.rc
+  cp $portdir/uninst.rc $pkgdir/uninstall.rc
