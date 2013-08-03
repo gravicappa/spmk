@@ -31,7 +31,7 @@ fn download {
 
 fn download_git {
   # usage: download_git repo [dir [tag]]
-  test $#2 -ne 0 && dir=$2 || dir=`{basename $1}
+  test $#2 -ne 0 && dir=$2 || dir=$pkgname
   if (test -d $dir)
     @{cd $dir && git pull origin}
   if not
@@ -45,7 +45,7 @@ fn download_git {
 
 fn download_hg {
   # usage: download_hg repo [dir [tag]]
-  test $#2 -ne 0 && dir=$2 || dir=`{basename $1}
+  test $#2 -ne 0 && dir=$2 || dir=$pkgname
   if (test -d $dir)
     @{cd $dir && hg pull -u}
   if not

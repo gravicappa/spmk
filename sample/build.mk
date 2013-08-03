@@ -5,29 +5,34 @@ sample-pkg-1.7.8-1:Q: dep1 dep2
 	# of $pkgdir into package tarball
   __PACKAGE__
   #
-	# Defined variables:
-	# portfile — a full path of current `build.mk`
-	# portdir — a full path of directory with current `build.mk`
-	# pkgname — a package name without version
-	# pkgverrel — a package version with release number
-	# pkgver — a package version without release number
-	# pkgdir — a target directory which built files should be installed
+	# It also defines variables:
+	#   portfile — a full path of current `build.mk`
+	#   portdir — a full path of directory with current `build.mk`
+	#   pkgname — a package name without version
+	#   pkgverrel — a package version with release number
+	#   pkgver — a package version without release number
+	#   pkgdir — a target directory where built files should be installed
   #
-  gitroot=http://git.example.hg
-  download_git $gitroot $pkgname $pkgver
+  download_git http://git.example.hg $pkgname $pkgver
+	#
+	# Short version of
+  #   download_git http://git.example.hg
+  # is equivalent to
+  #   download_git http://git.example.hg $pkgname master
   #
-	# working repo is located in $name-build directory
-  cd $pkgname-build
-  #
+	# When using download_git or download_hg working repo is located in
+	# $name-build directory
+	cd $pkgname-build
+	#
   opts=('prefix='/usr/local 'CC='$CC 'CFLAGS='-static 'destdir='$pkgdir)
   mk $opts all install
   #
-  # add install and uninstall scripts to package
+  # Add install and uninstall scripts to package
   #
   cp $portdir/inst.sh $pkgdir/install.sh
   cp $portdir/uninst.sh $pkgdir/uninstall.sh
   #
-  # add rc versions of install and uninstall scripts
+  # Add rc versions of install and uninstall scripts
   #
   cp inst.rc $pkgdir/install.rc
   cp uninst.rc $pkgdir/uninstall.rc
