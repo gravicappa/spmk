@@ -6,6 +6,12 @@ pkgfile=$3
 
 mkdir $pkgdir/install || exit 1
 
+name=`{basename $pkgfile | sed 's/-[0-9].*$//'} {
+  echo $name: $name package
+  echo $name:
+  echo $name:
+} > $pkgdir/install/slack-desc
+
 if (test -f $pkgdir/install.rc) {
   {
     sep=`{dd 'if='/dev/urandom 'bs='8 'count='1 | cksum | awk '{print $1}'}
@@ -32,4 +38,4 @@ if (test -n $pkgdep) {
   } >$pkgdir/install/slack-required
 }
 
-@{cd $pkgdir && makepkg -l n -c n $pkgfile}
+@{cd $pkgdir && fakeroot makepkg -l y -c y $pkgfile}
