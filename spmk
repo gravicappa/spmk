@@ -140,15 +140,11 @@ fn mkdep {
 cmd=$1
 if (~ $cmd -*)
   shift
-switch ($cmd) {
-case ''
-  test -f build.mk || die 'no build.mk'
-  dir=`{pwd}
-  cd $pkgdb
-  exec mk -f <{mkports $"dir/build.mk} .pre `{basename $dir} .post
-case -b
+if not {
   cd $pkgdb
   exec mk -f <{mkports} .pre $* .post
+}
+switch ($cmd) {
 case -r
   exec sp -r <{mk -f <{mkrevdep} $* | grep -v '[-][0-9]'}
 case -d
@@ -158,6 +154,6 @@ case -rd
 case -u
   die 'TODO: update whole system'
 case *
-  echo 'Usage: spmk [-b|-a|-r|-d|-rd|-u] packages...'
+  echo 'Usage: spmk [-r|-d|-rd|-u] packages...'
   exit 1
 }

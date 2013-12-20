@@ -21,12 +21,12 @@ $pkgfile:VQ:
   @{cd $destdir && makepkg -c n -l n $pkgfile}
 
 install:VQ:
-  mkdir -p $destdir/$bindir $destdir/$ports/slackware/slackware
+  mkdir -p $destdir/$bindir $destdir/$ports/slackware/1
   opts=('destdir='$destdir 'prefix='$prefix 'etcdir='/etc \
         'libdir='/usr/lib/spmk 'mandir='/usr/share/man/man1 \
         'buildroot='$buildroot)
   @{cd .. && mk $opts install}
-  cp slack.mk $destdir/$ports/slackware/slackware/build.mk
+  cp slack.mk $destdir/$ports/slackware/1/build.mk
   {
     echo '/^fn pkgfilename/c'
     echo 'fn pkgfilename {'

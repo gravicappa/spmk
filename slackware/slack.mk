@@ -1,4 +1,6 @@
 %:Q:
+  if (~ $target *' '*)
+    exit
   _found=0
   for (_x in /var/log/packages/$target-[0-9]*)
     if (test -e $_x)
