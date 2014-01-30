@@ -1,6 +1,5 @@
 #!/usr/bin/env rc
 
-spmk_inc=$HOME/dev/spmk/
 spmk_mk_d=$HOME/dev/spmk/spmk.d
 spmk_privkey=$HOME/dev/spmk/priv.key
 root=$HOME/dev/spmk/root
