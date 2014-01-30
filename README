@@ -24,10 +24,9 @@ Requirements
 
 Installation
 ------------
-To install spmk with rc-based package management scripts into `/usr/local/`
-type
+To install spmk into `/usr/local/` type
 
-  mk spimp=rc install
+  mk install
 
 Then it will expect user configuration (for defining default build environment
 like `CC`) *.mk files in `/usr/local/etc/spmk`, public keys for verifying

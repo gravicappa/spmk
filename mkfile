@@ -5,7 +5,7 @@ bindir = $prefix/sbin
 etcdir = $prefix/etc
 libdir = $prefix/lib
 mandir = $prefix/share/man/man1
-spimp = sh
+spimp = rc
 
 root = /
 pkgdb = `{cleanname $root/var/lib/spmk}
