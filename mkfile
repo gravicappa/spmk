@@ -14,6 +14,7 @@ pubkeydir = $etcdir/spmk/pubkeys
 spmk_privkey = $etcdir/spmk/priv.key
 tmpdir = `{cleanname $root/tmp/spmk}
 buildroot = `{cleanname $root/tmp/spmk/build}
+CC = gcc
 
 <config.mk
 
@@ -82,3 +83,6 @@ install:VQ: install_dirs install_sp_$spimp
   touch $destdir/$spmk_mk_d/empty.mk
   cp spmk.1 $destdir/$mandir
   cp sp.1 $destdir/$mandir
+
+tarroot: tarroot.c
+  $CC $CFLAGS $prereq $LDFLAGS -o $target
