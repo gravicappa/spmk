@@ -132,7 +132,7 @@ fn mkrevdep {
 fn mkdep {
   awk 'BEGIN {print "MKSHELL=rc\n"}
        /^[^ \t][^''=:%]*:/ {sub(/:[A-Z]*:*/, ":VQ:")}
-       /^[ \t]*__PACKAGE__[ \t]*$/ {print "  echo \$target; exit 0"}
+       /^[ \t]*__PACKAGE__[ \t]*$/ {print "  echo $target; exit 0"}
        {print}' $ports/*/*/build.mk | fixver
 }
 

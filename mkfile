@@ -18,7 +18,7 @@ CC = gcc
 
 <config.mk
 
-all:V: install
+all:V: tarchown
 
 install_dirs:VQ:
   mkdir -p $destdir/$bindir $destdir/$etcdir/spmk $destdir/$libdir/spmk
@@ -70,7 +70,7 @@ install_sp_rc:VQ:
     }
     {print}' <sp.rc >$destdir/$bindir/sp
 
-install:VQ: install_dirs install_sp_$spimp
+install:VQ: tarchown install_dirs install_sp_$spimp
   awk -F'=' '/^(spmk_mk_d|pkgdb|root|spmk_privkey|buildroot)=/ {
                printf("%s=''%s''\n", $1, ENVIRON[$1])
                next
@@ -83,6 +83,7 @@ install:VQ: install_dirs install_sp_$spimp
   touch $destdir/$spmk_mk_d/empty.mk
   cp spmk.1 $destdir/$mandir
   cp sp.1 $destdir/$mandir
+  cp tarchown $destdir/$bindir/
 
-tarroot: tarroot.c
-  $CC $CFLAGS $prereq $LDFLAGS -o $target
+tarchown:Q: tarchown.c
+  $CC $CFLAGS -static $prereq $LDFLAGS -o $target
