@@ -56,8 +56,8 @@ main()
         memset(hdr->checksum, ' ', sizeof(hdr->checksum));
         memset(hdr->uid, '0', sizeof(hdr->uid) - 1);
         memset(hdr->gid, '0', sizeof(hdr->gid) - 1);
-        memset(hdr->uname, '0', sizeof(hdr->uname));
-        memset(hdr->gname, '0', sizeof(hdr->gname));
+        memset(hdr->uname, 0, sizeof(hdr->uname));
+        memset(hdr->gname, 0, sizeof(hdr->gname));
         snprintf(hdr->uname, sizeof(hdr->uname), "root");
         snprintf(hdr->gname, sizeof(hdr->gname), "root");
         upd_cksum(hdr->checksum, buf);
