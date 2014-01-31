@@ -17,4 +17,4 @@ for (f in install.sh install.rc uninstall.sh uninstall.rc)
   if (test -f $pkgdir/$f)
     mv $pkgdir/$f $pkgdir/+PKG/
 
-@{cd $pkgdir && fakeroot -- tar -c *} | gzip >$pkgfile
+@{cd $pkgdir && tar -c *} | tarchown | gzip >$pkgfile

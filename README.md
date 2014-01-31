@@ -21,9 +21,6 @@ Requirements
   * tar, gzip
   * coreutils (cp, mv, rm)
 
-  * fakeroot (optional, used for setting owner as root in package tarball),
-    now you can try filtering tarball through provided `tarchown` utility.
-
 Installation
 ------------
 To install spmk into `/usr/local/` type
