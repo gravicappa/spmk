@@ -68,7 +68,7 @@ install_sp_rc:VQ:
       print s
       next
     }
-    {print}' <sp.rc >$destdir/$bindir/sp
+    {print}' <sp >$destdir/$bindir/sp
 
 install:VQ: tarchown install_dirs install_sp_$spimp
   awk -F'=' '/^(spmk_mk_d|pkgdb|root|spmk_privkey|buildroot)=/ {
