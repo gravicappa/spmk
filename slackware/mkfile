@@ -1,6 +1,6 @@
 MKSHELL = rc
 
-version=0.0.1
+version=0.0.2
 rel=1
 pkgname=spmk-$version-noarch-$rel
 pkgfile=`{pwd}/$pkgname.tgz
